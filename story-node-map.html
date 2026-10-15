@@ -1,0 +1,1250 @@
+<title>Story Node Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: one tool page. Builder (sections as stacked cards), play board with wires, results (conflicts, bars, routes), method, save/load. */
+  :root {
+    --bg: #EDF0F3;
+    --surface: #FFFFFF;
+    --ink: #18212B;
+    --muted: #556272;
+    --line: #C3CCD6;
+    --accent: #0B7A78;
+    --accent-soft: #D5EEEC;
+    --on-accent: #FFFFFF;
+    --warn: #A8431A;
+    --warn-soft: #F8E3DA;
+    --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+    --font-body: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11171D; --surface: #1A222B; --ink: #E5EBF1; --muted: #98A6B5; --line: #34424F;
+      --accent: #43C6C1; --accent-soft: #17383B; --on-accent: #07201F;
+      --warn: #F09A72; --warn-soft: #3A2318;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #11171D; --surface: #1A222B; --ink: #E5EBF1; --muted: #98A6B5; --line: #34424F;
+    --accent: #43C6C1; --accent-soft: #17383B; --on-accent: #07201F;
+    --warn: #F09A72; --warn-soft: #3A2318;
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+    padding-block: 28px 64px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .page { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px; min-width: 0; }
+  h1 { font-family: var(--font-display); font-size: 30px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin: 0 0 6px; text-wrap: balance; }
+  h2 { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin: 0 0 6px; text-wrap: balance; }
+  h3 { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin: 0; }
+  .lead { margin: 0; max-width: 66ch; color: var(--muted); }
+  .note { color: var(--muted); margin: 0 0 12px; max-width: 72ch; }
+  .nav { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: 14px; }
+  .nav a { color: var(--accent); font-weight: 600; text-decoration: none; }
+  .nav a:hover { text-decoration: underline; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0; padding: 18px 20px 20px; }
+  .label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    font: 500 13px var(--font-body); color: var(--ink); background: transparent;
+    border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer;
+  }
+  .btn:hover { background: var(--bg); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .btn.primary:hover { background: var(--accent); filter: brightness(1.08); }
+  .btn.small { padding: 3px 9px; font-size: 12px; }
+  .btn.danger { color: var(--warn); border-color: var(--line); }
+  .btn.danger:hover { border-color: var(--warn); background: var(--warn-soft); }
+  .btn:focus-visible, .ev.toggle:focus-visible, summary:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible, .pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* builder */
+  .bhead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 20px; align-items: flex-start; margin-bottom: 8px; }
+  .msgs { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 13.5px; }
+  .msgs .bad { color: var(--warn); }
+  .msgs .meh { color: var(--muted); }
+  .sec { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; display: grid; gap: 14px; }
+  .sechead { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; justify-content: space-between; }
+  .sechead .sub { color: var(--muted); font-size: 13px; margin-left: 8px; font-weight: 400; font-family: var(--font-body); }
+  .sgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 20px; align-items: start; }
+  .sgrid.single { grid-template-columns: minmax(0, 1fr); max-width: 520px; }
+  .col-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .erows, .nrows { display: grid; gap: 8px; }
+  .erow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .erow .txt { flex: 1 1 140px; min-width: 0; }
+  .txt, .sel {
+    font: 400 14px var(--font-body); color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; box-sizing: border-box; min-width: 0;
+  }
+  .sel { max-width: 100%; }
+  .enode { border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 10px 12px; display: grid; gap: 10px; min-width: 0; }
+  .nhd { display: flex; gap: 8px; align-items: center; }
+  .nhd .txt { flex: 1; font-weight: 600; background: var(--surface); }
+  .eform { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .frow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .frow .label { min-width: 44px; }
+  .pill {
+    font: 600 12.5px/1.2 var(--font-body); padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer;
+  }
+  .pill:hover { border-color: var(--accent); }
+  .pill[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .empty { color: var(--muted); font-size: 13px; margin: 0; }
+  .badge { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+  /* play board */
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .toolbar p { margin: 0; color: var(--muted); font-size: 13px; }
+  .boardbox { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+  .result { padding: 14px 18px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; border-bottom: 1px solid var(--line); }
+  .result .name { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--accent); letter-spacing: -0.01em; }
+  .result.dead .name { color: var(--warn); }
+  .result .hint { color: var(--muted); font-size: 13px; flex-basis: 100%; margin: 0; max-width: 70ch; }
+  .scroll { overflow-x: auto; padding: 18px 16px 22px; }
+  .stage { position: relative; width: max-content; min-width: 100%; }
+  #wires { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 0; overflow: visible; }
+  .w { fill: none; stroke: var(--line); stroke-width: 1.5; }
+  .w.on { stroke: var(--accent); stroke-width: 2.5; }
+  .cols { position: relative; z-index: 1; display: flex; gap: 44px; align-items: stretch; }
+  .col { display: flex; flex-direction: column; gap: 12px; flex: none; }
+  .col.events { width: 150px; }
+  .col.nodes { width: 238px; }
+  .col.endings { width: 164px; }
+  .head { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); min-height: 30px; }
+  .body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+  .ev {
+    display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; text-align: left;
+    font: 600 13px/1.25 var(--font-body); padding: 8px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--muted);
+  }
+  .ev.toggle { cursor: pointer; }
+  .ev.toggle:hover { border-color: var(--accent); }
+  .ev.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .mk { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid currentColor; flex: none; }
+  .ev.on .mk { background: currentColor; }
+  .tag { margin-left: auto; font-family: var(--font-mono); font-size: 9.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.85; }
+  .ev.ending { font-size: 14px; padding: 11px 14px; }
+  .node { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .nhead { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  .nname { font-family: var(--font-display); font-size: 14px; font-weight: 700; }
+  .nkind { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-left: 6px; font-weight: 500; }
+  .nstat { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); white-space: nowrap; }
+  .node.fired .nstat { color: var(--accent); }
+  .node.conflict .nstat { color: var(--warn); }
+  .row { padding: 8px 12px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+  .nhead + .row { border-top: 0; }
+  .rtop { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .formula { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+  .st { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .out { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .row.met .formula { color: var(--ink); }
+  .row.fired { background: var(--accent-soft); }
+  .row.fired .out, .row.fired .st { color: var(--accent); }
+  .row.fired .formula { color: var(--ink); }
+  .row.outranked .out { text-decoration: line-through; text-decoration-thickness: 1px; }
+  .row.conflict { background: var(--warn-soft); }
+  .row.conflict .st, .row.conflict .out { color: var(--warn); }
+
+  /* results */
+  .issues { display: grid; gap: 8px; margin: 12px 0 4px; }
+  .issue { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; justify-content: space-between; border-radius: 6px; padding: 9px 14px; font-size: 13.5px; }
+  .issue .txt2 { min-width: 0; flex: 1 1 320px; }
+  .issue.bad { background: var(--warn-soft); }
+  .issue.bad b { color: var(--warn); }
+  .issue.good { background: var(--accent-soft); }
+  .issue.good b { color: var(--accent); }
+  .issue.meh { background: var(--bg); }
+  .bars { display: grid; gap: 12px; margin: 16px 0 6px; }
+  .bar-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  .bar-name { font-weight: 600; }
+  .num { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .track { height: 10px; background: var(--bg); border-radius: 999px; overflow: hidden; margin-top: 5px; }
+  .fill { height: 100%; background: var(--accent); min-width: 3px; border-radius: 999px; }
+  .bar.none .fill { background: var(--warn); }
+  .bar.none .bar-name { color: var(--warn); }
+  details.group { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 12px; }
+  details.group > summary { cursor: pointer; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; font-family: var(--font-display); font-weight: 700; font-size: 17px; }
+  details.group > summary .num { font-weight: 400; }
+  details.group.none > summary { color: var(--warn); }
+  .route { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; margin-top: 10px; display: grid; gap: 10px; min-width: 0; }
+  .rmeta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+  .steps li { font-size: 13.5px; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+  .stag { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); min-width: 64px; }
+  .sf { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  details.sub > summary { cursor: pointer; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .cube { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .cg { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; min-width: 0; }
+  .cgl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
+  .cb { font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); }
+  .cb.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .cb.off { border-style: dashed; border-color: var(--warn); color: var(--warn); }
+  .cb.any { color: var(--muted); font-weight: 500; }
+  .cube .btn { margin-left: auto; }
+  .plist { display: grid; gap: 4px; margin-top: 8px; }
+  .pitem { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 4px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .pitem span { min-width: 0; }
+
+  /* method + data */
+  dl.rl { margin: 0; display: grid; grid-template-columns: minmax(150px, 230px) minmax(0, 1fr); gap: 12px 24px; max-width: 920px; }
+  dl.rl dt { font-weight: 600; }
+  dl.rl dd { margin: 0; color: var(--muted); max-width: 68ch; }
+  textarea#json {
+    width: 100%; box-sizing: border-box; min-height: 260px; resize: vertical;
+    font: 400 12px/1.55 var(--font-mono); color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 6px; padding: 12px; tab-size: 2; white-space: pre; overflow: auto;
+  }
+  @media (max-width: 760px) {
+    .sgrid { grid-template-columns: minmax(0, 1fr); }
+    dl.rl { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    dl.rl dd { margin-bottom: 12px; }
+    h1 { font-size: 26px; }
+    .cube .btn { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ev, .w, .fill { transition: background-color .15s, border-color .15s, stroke .15s, width .2s; }
+  }
+</style>
+
+<main class="page">
+  <header>
+    <h1>Story Node Map</h1>
+    <p class="lead">Build your event framework, then see every way it can reach an ending. Add time sections, events, nodes with formulas and endings. The board, the conflicts and the routes update as you type.</p>
+    <nav class="nav" aria-label="Page sections">
+      <a href="#build">1 Build</a>
+      <a href="#board">2 Play</a>
+      <a href="#results">3 Results</a>
+      <a href="#method">4 Method</a>
+      <a href="#save">5 Save and load</a>
+    </nav>
+  </header>
+
+  <section class="panel" id="build">
+    <div class="bhead">
+      <div>
+        <h2>Build</h2>
+        <p class="note" style="margin:0">Section 1 holds the starting events. The last section holds the endings. Each node reads events from its own section and gives one event in the next. Mark an event in a middle section as an isolated choice if no node gives it.</p>
+      </div>
+      <div class="btns">
+        <button class="btn primary" id="addsec" type="button">Add time section</button>
+        <button class="btn" id="sample" type="button">Load sample story</button>
+        <button class="btn danger" id="clearall" type="button">Start empty</button>
+      </div>
+    </div>
+    <ul class="msgs" id="buildmsgs"></ul>
+    <div id="sections"></div>
+  </section>
+
+  <section id="board" class="boardbox" aria-label="Play board">
+    <div class="result" id="result" aria-live="polite"></div>
+    <div class="toolbar">
+      <p>Click the starting events and isolated events to play. Scroll sideways to follow the story to its ending.</p>
+      <div class="btns">
+        <button class="btn" id="reset" type="button">Reset</button>
+        <button class="btn" id="clear" type="button">Switch all off</button>
+      </div>
+    </div>
+    <div class="scroll" id="scroll">
+      <div class="stage" id="stage">
+        <svg id="wires" aria-hidden="true"></svg>
+        <div class="cols" id="cols"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="results">
+    <h2>Results: every way to reach an ending</h2>
+    <div id="results-body"></div>
+  </section>
+
+  <section class="panel" id="method">
+    <h2>Method</h2>
+    <p class="note">This is the exact procedure the page runs. It checks every combination, so nothing is missed and nothing is estimated.</p>
+    <dl class="rl">
+      <dt>1. List the switches</dt>
+      <dd>Every starting event and every isolated event is a switch that is on or off. With n switches there are 2 to the power n combinations. Each combination is one complete set of choices.</dd>
+      <dt>2. Play one combination</dt>
+      <dd>Go through the sections in order. In a node, a formula is true when every event it needs is on. The output of a true formula switches on in the next section.</dd>
+      <dt>3. Overlapping formulas</dt>
+      <dd>If a formula needs all the events of another formula and more (A + B + C against A + B), the bigger one wins and the smaller one is blocked. If two true formulas cannot be ranked this way, the node has a conflict, stays silent, and is reported.</dd>
+      <dt>4. Read the ending</dt>
+      <dd>The events that are on in the last section are the endings reached. If none is on, the combination is a dead end.</dd>
+      <dt>5. Find the route</dt>
+      <dd>Start at the ending and walk backwards through the formulas that gave each event. The set of formulas on that backward chain is the route. Combinations with the same ending and the same route are grouped together.</dd>
+      <dt>6. Compress the combinations</dt>
+      <dd>Combinations that differ by one switch are merged, again and again, until the remaining patterns cannot merge. Each pattern says which events must happen, which must not, and which can go either way.</dd>
+      <dt>7. Checks</dt>
+      <dd>The same run reports conflicts, endings that no combination reaches, formulas that never fire, and the share of dead ends.</dd>
+      <dt>Limit</dt>
+      <dd>The page enumerates up to 16 switches (65,536 combinations). Beyond that it stops and says so. A larger story can still be solved by merging combinations that produce the same events in a section, which can be added when you need it.</dd>
+    </dl>
+  </section>
+
+  <section class="panel" id="save">
+    <h2>Save and load</h2>
+    <p class="note">Your work is kept in this browser automatically. To keep a copy or move it elsewhere, copy the text below. To load a copy, paste it here and press Load.</p>
+    <textarea id="json" spellcheck="false" aria-label="Framework as text"></textarea>
+    <div class="btns" style="margin-top:10px">
+      <button class="btn" id="copyjson" type="button">Copy text</button>
+      <button class="btn primary" id="loadjson" type="button">Load this text</button>
+    </div>
+    <ul class="msgs" id="jsonmsgs"></ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  var STORE = 'storyNodeMap.v2';
+  var MAX_SWITCHES = 16, QM_LIMIT = 3000, LIST_LIMIT = 300;
+
+  var SAMPLE = {
+    sections: 4,
+    events: [
+      { id: 'key',  label: 'Cellar key',   section: 1 },
+      { id: 'map',  label: 'Secret map',   section: 1 },
+      { id: 'lamp', label: 'Lantern',      section: 1 },
+      { id: 'ally', label: "Cook's trust", section: 1 },
+      { id: 'treasure', label: 'Treasure room',   section: 2 },
+      { id: 'cellar',   label: 'Cellar explored', section: 2 },
+      { id: 'passage',  label: 'Hidden passage',  section: 2 },
+      { id: 'smug',     label: 'Night exit',      section: 2 },
+      { id: 'fed',      label: "Cook's tip",      section: 2 },
+      { id: 'keyc',     label: 'Key carried',     section: 2 },
+      { id: 'storm',    label: 'Storm breaks',    section: 2, kind: 'isolated' },
+      { id: 'hand',   label: 'Treasure in hand', section: 3 },
+      { id: 'chaos',  label: 'Chaos run',        section: 3 },
+      { id: 'quiet',  label: 'Quiet exit',       section: 3 },
+      { id: 'gate',   label: 'Gate unlocked',    section: 3 },
+      { id: 'picked', label: 'Gate picked',      section: 3 },
+      { id: 'richfree',  label: 'Rich and free',      section: 4 },
+      { id: 'hunted',    label: 'Rich but hunted',    section: 4 },
+      { id: 'unnoticed', label: 'Free, unnoticed',    section: 4 },
+      { id: 'empty',     label: 'Free, empty-handed', section: 4 }
+    ],
+    nodes: [
+      { id: 'n1', name: 'Cellar door', section: 1, formulas: [
+        { needs: ['key', 'lamp', 'map'], gives: 'treasure' },
+        { needs: ['key', 'lamp'],        gives: 'cellar' },
+        { needs: ['key', 'map'],         gives: 'passage' } ] },
+      { id: 'n2', name: 'Kitchen', section: 1, formulas: [
+        { needs: ['ally', 'lamp'], gives: 'smug' },
+        { needs: ['ally'],         gives: 'fed' } ] },
+      { id: 'p1', name: 'Carry key', section: 1, formulas: [
+        { needs: ['key'], gives: 'keyc' } ] },
+      { id: 'n3', name: 'Courtyard', section: 2, formulas: [
+        { needs: ['treasure', 'storm'], gives: 'chaos' },
+        { needs: ['treasure'],          gives: 'hand' },
+        { needs: ['passage', 'fed'],    gives: 'quiet' } ] },
+      { id: 'n4', name: 'Guard post', section: 2, formulas: [
+        { needs: ['smug', 'keyc'],   gives: 'gate' },
+        { needs: ['cellar', 'keyc'], gives: 'picked' } ] },
+      { id: 'n5', name: 'Escape', section: 3, formulas: [
+        { needs: ['hand', 'gate'],  gives: 'richfree' },
+        { needs: ['chaos'],         gives: 'hunted' },
+        { needs: ['quiet', 'gate'], gives: 'unnoticed' },
+        { needs: ['picked'],        gives: 'empty' } ] }
+    ]
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function fmt(x) { return x.toLocaleString('en-US'); }
+  function dedupe(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
+  function uid(prefix, list) { var i = 1; while (list.some(function (x) { return x.id === prefix + i; })) i++; return prefix + i; }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+
+  /* ------------------------------------------------------------------ data */
+  var data = null, M = null, C = null, A = null, on = {};
+
+  function normalize(o) {
+    if (!o || !Array.isArray(o.events) || !Array.isArray(o.nodes)) return null;
+    var events = [], nodes = [], maxS = 2;
+    o.events.forEach(function (e) {
+      if (!e || typeof e.id !== 'string') return;
+      var s = parseInt(e.section, 10); if (!(s >= 1)) s = 1;
+      maxS = Math.max(maxS, s);
+      var ev = { id: e.id, label: String(e.label == null ? '' : e.label), section: s };
+      if (e.kind === 'isolated') ev.kind = 'isolated';
+      events.push(ev);
+    });
+    o.nodes.forEach(function (n) {
+      if (!n || typeof n.id !== 'string') return;
+      var s = parseInt(n.section, 10); if (!(s >= 1)) return;
+      maxS = Math.max(maxS, s + 1);
+      var fs = Array.isArray(n.formulas) ? n.formulas.map(function (f) {
+        return { needs: Array.isArray(f && f.needs) ? f.needs.filter(function (x) { return typeof x === 'string'; }) : [], gives: f && typeof f.gives === 'string' ? f.gives : '' };
+      }) : [];
+      nodes.push({ id: n.id, name: String(n.name == null ? '' : n.name), section: s, formulas: fs });
+    });
+    var S = parseInt(o.sections, 10);
+    if (!(S >= 2)) S = maxS;
+    return { sections: S, events: events, nodes: nodes };
+  }
+
+  function cleanup() {
+    var S = data.sections, ev = {};
+    data.events = data.events.filter(function (e) { return e.section >= 1 && e.section <= S; });
+    data.events.forEach(function (e) { ev[e.id] = e; });
+    data.nodes = data.nodes.filter(function (n) { return n.section >= 1 && n.section < S; });
+    data.nodes.forEach(function (n) {
+      n.formulas.forEach(function (f) {
+        f.needs = f.needs.filter(function (x) { return ev[x] && ev[x].section === n.section; });
+        if (f.gives && !(ev[f.gives] && ev[f.gives].section === n.section + 1)) f.gives = '';
+      });
+    });
+  }
+
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(data)); } catch (e) { /* storage may be unavailable */ }
+  }
+
+  /* ----------------------------------------------------------------- model */
+  function buildModel(d) {
+    var errors = [], warnings = [], S = d.sections;
+    var events = {}, order = [];
+    d.events.forEach(function (e) {
+      var s = e.section;
+      var k = s === 1 ? 'start' : (s === S ? 'ending' : (e.kind === 'isolated' ? 'isolated' : 'derived'));
+      events[e.id] = { id: e.id, l: (e.label || '').trim() || '(unnamed event)', s: s, k: k };
+      order.push(e.id);
+    });
+    order.sort(function (a, b) { return events[a].s - events[b].s; });
+    var nodes = [];
+    d.nodes.forEach(function (n) {
+      var nm = (n.name || '').trim() || '(unnamed node)', f = [];
+      n.formulas.forEach(function (fm) {
+        var ok = fm.needs.length && fm.gives && events[fm.gives] && fm.needs.every(function (x) { return events[x]; });
+        if (!ok) { warnings.push('A formula in "' + nm + '" is incomplete, so it is ignored. Pick at least one needed event and an output event.'); return; }
+        f.push({ r: dedupe(fm.needs), o: fm.gives });
+      });
+      if (!f.length) { warnings.push('Node "' + nm + '" has no complete formula, so it is ignored.'); return; }
+      nodes.push({ id: n.id, name: nm, s: n.section, f: f });
+    });
+    nodes.sort(function (a, b) { return a.s - b.s; });
+    var endings = order.filter(function (id) { return events[id].k === 'ending'; });
+    var toggles = order.filter(function (id) { return events[id].k === 'start' || events[id].k === 'isolated'; });
+    if (!toggles.length) errors.push('Add at least one starting event in section 1.');
+    if (!endings.length) errors.push('Add at least one ending in section ' + S + '.');
+    if (!nodes.length) errors.push('Add at least one node with a complete formula.');
+    var produced = {}, used = {};
+    nodes.forEach(function (n) { n.f.forEach(function (f) { produced[f.o] = 1; f.r.forEach(function (x) { used[x] = 1; }); }); });
+    order.forEach(function (id) {
+      var e = events[id];
+      if ((e.k === 'derived' || e.k === 'ending') && !produced[id]) warnings.push('"' + e.l + '" is never given by any node, so it can never happen. Mark it as an isolated choice or add a formula that gives it.');
+      if (e.k !== 'ending' && !used[id]) warnings.push('"' + e.l + '" is not needed by any formula.');
+    });
+    nodes.forEach(function (n) {
+      n.type = n.s === S - 1 ? 'final' : (n.f.length === 1 && n.f[0].r.length === 1 ? 'pass' : 'node');
+    });
+    return { errors: errors, warnings: warnings, model: errors.length ? null : { events: events, order: order, nodes: nodes, last: S - 1, endings: endings, toggles: toggles } };
+  }
+
+  /* ---------------------------------------------------------------- engine */
+  function compile(m) {
+    var idx = {};
+    m.order.forEach(function (id, i) { idx[id] = i; });
+    var nodes = m.nodes.map(function (n) {
+      var f = n.f.map(function (fm) { return { r: fm.r.map(function (x) { return idx[x]; }), o: idx[fm.o] }; });
+      var dom = f.map(function (a, i) {
+        var d = [];
+        f.forEach(function (b, j) {
+          if (j !== i && b.r.length > a.r.length && a.r.every(function (x) { return b.r.indexOf(x) >= 0; })) d.push(j);
+        });
+        return d;
+      });
+      return { s: n.s, f: f, dom: dom, id: n.id, name: n.name };
+    });
+    return {
+      idx: idx, E: m.order.length, nodes: nodes,
+      toggles: m.toggles.map(function (id) { return idx[id]; }),
+      endings: m.endings.map(function (id) { return idx[id]; })
+    };
+  }
+
+  function evalC(c, bits) {
+    var ev = new Uint8Array(c.E), prod = new Array(c.E), fired = [], conf = [], res = new Array(c.nodes.length);
+    for (var t = 0; t < c.toggles.length; t++) ev[c.toggles[t]] = bits[t] ? 1 : 0;
+    for (var ni = 0; ni < c.nodes.length; ni++) {
+      var nd = c.nodes[ni], matched = [], flag = [];
+      for (var i = 0; i < nd.f.length; i++) {
+        var ok = true, r = nd.f[i].r;
+        for (var k = 0; k < r.length; k++) { if (!ev[r[k]]) { ok = false; break; } }
+        flag[i] = ok;
+        if (ok) matched.push(i);
+      }
+      var winner = -1, conflict = false;
+      if (matched.length) {
+        var top = matched.filter(function (i) { return !nd.dom[i].some(function (j) { return flag[j]; }); });
+        if (top.length === 1) {
+          winner = top[0];
+          var o = nd.f[winner].o;
+          ev[o] = 1;
+          if (!prod[o]) prod[o] = { ni: ni, fi: winner };
+          fired.push(ni * 1000 + winner);
+        } else { conflict = true; conf.push({ ni: ni, tied: top }); }
+      }
+      res[ni] = { matched: matched, winner: winner, conflict: conflict };
+    }
+    return { ev: ev, prod: prod, fired: fired, conf: conf, res: res };
+  }
+
+  function traceC(c, R) {
+    var seen = {}, stack = [], steps = [];
+    c.endings.forEach(function (e) { if (R.ev[e]) stack.push(e); });
+    while (stack.length) {
+      var e = stack.pop(), p = R.prod[e];
+      if (!p) continue;
+      var key = p.ni * 1000 + p.fi;
+      if (seen[key]) continue;
+      seen[key] = 1;
+      steps.push(key);
+      c.nodes[p.ni].f[p.fi].r.forEach(function (x) { stack.push(x); });
+    }
+    steps.sort(function (a, b) {
+      var na = c.nodes[Math.floor(a / 1000)], nb = c.nodes[Math.floor(b / 1000)];
+      return (na.s - nb.s) || (a - b);
+    });
+    return steps;
+  }
+
+  function cubesFor(masks, n) {
+    function str(m) { var s = ''; for (var i = 0; i < n; i++) s += ((m >> i) & 1) ? '1' : '0'; return s; }
+    var cur = {};
+    masks.forEach(function (m) { cur[str(m)] = 1; });
+    var primes = [];
+    while (Object.keys(cur).length) {
+      var next = {}, merged = {};
+      Object.keys(cur).forEach(function (t) {
+        for (var i = 0; i < n; i++) {
+          var ch = t.charAt(i);
+          if (ch === '-') continue;
+          var flip = t.slice(0, i) + (ch === '1' ? '0' : '1') + t.slice(i + 1);
+          if (cur[flip]) { merged[t] = 1; merged[flip] = 1; next[t.slice(0, i) + '-' + t.slice(i + 1)] = 1; }
+        }
+      });
+      Object.keys(cur).forEach(function (t) { if (!merged[t]) primes.push(t); });
+      cur = next;
+    }
+    function covers(p, m) { for (var i = 0; i < n; i++) { if (p.charAt(i) !== '-' && p.charAt(i) !== m.charAt(i)) return false; } return true; }
+    var unc = masks.map(str), chosen = [];
+    while (unc.length) {
+      var best = null, bc = -1;
+      primes.forEach(function (p) {
+        var cnt = 0;
+        for (var j = 0; j < unc.length; j++) if (covers(p, unc[j])) cnt++;
+        if (cnt > bc) { bc = cnt; best = p; }
+      });
+      chosen.push(best);
+      unc = unc.filter(function (m) { return !covers(best, m); });
+    }
+    function fixed(p) { return p.replace(/-/g, '').length; }
+    return chosen.sort(function (a, b) { return (fixed(a) - fixed(b)) || (a < b ? -1 : 1); });
+  }
+
+  function analyze(c) {
+    var n = c.toggles.length;
+    if (n > MAX_SWITCHES) return { tooMany: true, n: n };
+    var total = Math.pow(2, n), groups = {}, confs = {}, bits = new Array(n);
+    var fires = c.nodes.map(function (nd) { return nd.f.map(function () { return 0; }); });
+    for (var mask = 0; mask < total; mask++) {
+      for (var i = 0; i < n; i++) bits[i] = (mask >> i) & 1;
+      var R = evalC(c, bits);
+      R.fired.forEach(function (k) { fires[Math.floor(k / 1000)][k % 1000]++; });
+      R.conf.forEach(function (cf) {
+        var key = cf.ni + ':' + cf.tied.join(',');
+        var o = confs[key] || (confs[key] = { ni: cf.ni, tied: cf.tied, count: 0, mask: mask });
+        o.count++;
+      });
+      var ends = [];
+      c.endings.forEach(function (e, j) { if (R.ev[e]) ends.push(j); });
+      var gk = ends.join('|');
+      var g = groups[gk] || (groups[gk] = { key: gk, ends: ends, count: 0, routes: {} });
+      g.count++;
+      var steps = [], sig, far = 0;
+      if (ends.length) { steps = traceC(c, R); sig = steps.join(','); }
+      else {
+        R.fired.forEach(function (k) { var s = c.nodes[Math.floor(k / 1000)].s; if (s > far) far = s; });
+        sig = 'stop' + far;
+      }
+      var rt = g.routes[sig] || (g.routes[sig] = { sig: sig, steps: steps, stop: far, masks: [] });
+      rt.masks.push(mask);
+    }
+    var list = Object.keys(groups).map(function (k) {
+      var g = groups[k];
+      g.routes = Object.keys(g.routes).map(function (s) {
+        var rt = g.routes[s]; rt.count = rt.masks.length; return rt;
+      }).sort(function (a, b) { return b.count - a.count; });
+      return g;
+    });
+    function rank(g) { return g.ends.length ? Math.min.apply(null, g.ends) : 9999; }
+    list.sort(function (a, b) { return rank(a) - rank(b); });
+    var conflicts = Object.keys(confs).map(function (k) { return confs[k]; }).sort(function (a, b) { return b.count - a.count; });
+    return { n: n, total: total, groups: list, conflicts: conflicts, fires: fires };
+  }
+
+  /* ---------------------------------------------------------------- editor */
+  var timer = null;
+  function schedule() { clearTimeout(timer); timer = setTimeout(recompute, 220); }
+  function changed(structural) {
+    cleanup();
+    save();
+    if (structural) renderEditor();
+    schedule();
+  }
+
+  function eventsIn(s) { return data.events.filter(function (e) { return e.section === s; }); }
+  function evLabel(e) { return (e.label || '').trim() || '(unnamed event)'; }
+
+  var labelBinds = {};
+  function bind(id, fn) { (labelBinds[id] = labelBinds[id] || []).push(fn); }
+
+  function renderEditor() {
+    labelBinds = {};
+    var host = $('sections');
+    host.textContent = '';
+    var S = data.sections;
+    for (var s = 1; s <= S; s++) host.appendChild(sectionCard(s, S));
+  }
+
+  function sectionCard(s, S) {
+    var isFirst = s === 1, isLast = s === S;
+    var card = el('div', 'sec');
+    var head = el('div', 'sechead');
+    var ttl = el('h3', '', 'Section ' + s);
+    ttl.appendChild(el('span', 'sub', isFirst ? 'starting events' : isLast ? 'endings' : 'events from the section before'));
+    head.appendChild(ttl);
+    if (s === S - 1 && S > 2) {
+      var rm = el('button', 'btn small danger', 'Remove section ' + s);
+      rm.type = 'button';
+      rm.addEventListener('click', function () {
+        data.events = data.events.filter(function (e) { return e.section !== s; });
+        data.events.forEach(function (e) { if (e.section === S) e.section = S - 1; });
+        data.sections = S - 1;
+        changed(true);
+      });
+      head.appendChild(rm);
+    }
+    card.appendChild(head);
+
+    var grid = el('div', 'sgrid' + (isLast ? ' single' : ''));
+    var ecol = el('div');
+    var et = el('div', 'col-title');
+    et.appendChild(el('span', 'label', isLast ? 'Endings' : 'Events'));
+    var addE = el('button', 'btn small', isFirst ? 'Add starting event' : isLast ? 'Add ending' : 'Add event');
+    addE.type = 'button';
+    addE.addEventListener('click', function () {
+      var e = { id: uid('e', data.events), label: '', section: s };
+      if (s > 1 && s < S) e.kind = 'isolated';
+      data.events.push(e);
+      changed(true);
+      var inputs = document.querySelectorAll('[data-evinput="' + e.id + '"]');
+      if (inputs.length) inputs[0].focus();
+    });
+    et.appendChild(addE);
+    ecol.appendChild(et);
+    var erows = el('div', 'erows');
+    var evs = eventsIn(s);
+    if (!evs.length) erows.appendChild(el('p', 'empty', isFirst ? 'No starting events yet.' : isLast ? 'No endings yet.' : 'No events in this section yet.'));
+    evs.forEach(function (e) { erows.appendChild(eventRow(e, s, S)); });
+    ecol.appendChild(erows);
+    grid.appendChild(ecol);
+
+    if (!isLast) {
+      var ncol = el('div');
+      var nt = el('div', 'col-title');
+      nt.appendChild(el('span', 'label', 'Nodes in section ' + s));
+      var addN = el('button', 'btn small', 'Add node');
+      addN.type = 'button';
+      addN.addEventListener('click', function () {
+        data.nodes.push({ id: uid('n', data.nodes), name: 'Node ' + (data.nodes.length + 1), section: s, formulas: [{ needs: [], gives: '' }] });
+        changed(true);
+      });
+      nt.appendChild(addN);
+      ncol.appendChild(nt);
+      var nrows = el('div', 'nrows');
+      var nds = data.nodes.filter(function (n) { return n.section === s; });
+      if (!nds.length) nrows.appendChild(el('p', 'empty', 'No nodes yet. A node turns events of this section into one event of the next.'));
+      nds.forEach(function (n) { nrows.appendChild(nodeEditor(n, s)); });
+      ncol.appendChild(nrows);
+      grid.appendChild(ncol);
+    }
+    card.appendChild(grid);
+    return card;
+  }
+
+  function eventRow(e, s, S) {
+    var row = el('div', 'erow');
+    var t = el('input', 'txt');
+    t.type = 'text'; t.value = e.label; t.placeholder = 'Event name';
+    t.setAttribute('aria-label', 'Event name');
+    t.setAttribute('data-evinput', e.id);
+    t.addEventListener('input', function () {
+      e.label = t.value; save(); schedule();
+      (labelBinds[e.id] || []).forEach(function (fn) { fn(); });
+    });
+    row.appendChild(t);
+    if (s > 1 && s < S) {
+      var sel = el('select', 'sel');
+      sel.setAttribute('aria-label', 'Where this event comes from');
+      [['derived', 'From a node'], ['isolated', 'Isolated choice']].forEach(function (o) {
+        var op = el('option', '', o[1]); op.value = o[0];
+        if ((e.kind === 'isolated' ? 'isolated' : 'derived') === o[0]) op.selected = true;
+        sel.appendChild(op);
+      });
+      sel.addEventListener('change', function () { if (sel.value === 'isolated') e.kind = 'isolated'; else delete e.kind; changed(true); });
+      row.appendChild(sel);
+    }
+    if (s < S - 1) {
+      var carry = el('button', 'btn small', 'Carry on');
+      carry.type = 'button';
+      carry.title = 'Add a pass-through node and the same event in the next section';
+      carry.addEventListener('click', function () {
+        var ne = { id: uid('e', data.events), label: e.label, section: s + 1 };
+        data.events.push(ne);
+        data.nodes.push({ id: uid('n', data.nodes), name: 'Carry ' + evLabel(e), section: s, formulas: [{ needs: [e.id], gives: ne.id }] });
+        changed(true);
+      });
+      row.appendChild(carry);
+    }
+    var del = el('button', 'btn small danger', 'Delete');
+    del.type = 'button';
+    del.setAttribute('aria-label', 'Delete event ' + evLabel(e));
+    del.addEventListener('click', function () {
+      data.events = data.events.filter(function (x) { return x.id !== e.id; });
+      changed(true);
+    });
+    row.appendChild(del);
+    return row;
+  }
+
+  function nodeEditor(n, s) {
+    var box = el('div', 'enode');
+    var hd = el('div', 'nhd');
+    var nm = el('input', 'txt');
+    nm.type = 'text'; nm.value = n.name; nm.placeholder = 'Node name';
+    nm.setAttribute('aria-label', 'Node name');
+    nm.addEventListener('input', function () { n.name = nm.value; save(); schedule(); });
+    hd.appendChild(nm);
+    var dn = el('button', 'btn small danger', 'Delete node');
+    dn.type = 'button';
+    dn.addEventListener('click', function () { data.nodes = data.nodes.filter(function (x) { return x.id !== n.id; }); changed(true); });
+    hd.appendChild(dn);
+    box.appendChild(hd);
+
+    var ins = eventsIn(s), outs = eventsIn(s + 1);
+    n.formulas.forEach(function (f, fi) {
+      var fb = el('div', 'eform');
+      var r1 = el('div', 'frow');
+      r1.appendChild(el('span', 'label', 'Needs'));
+      if (!ins.length) r1.appendChild(el('span', 'empty', 'Add events to section ' + s + ' first.'));
+      ins.forEach(function (e) {
+        var p = el('button', 'pill', evLabel(e));
+        p.type = 'button';
+        bind(e.id, function () { p.textContent = evLabel(e); });
+        var isOn = f.needs.indexOf(e.id) >= 0;
+        p.setAttribute('aria-pressed', isOn ? 'true' : 'false');
+        p.addEventListener('click', function () {
+          var at = f.needs.indexOf(e.id);
+          if (at >= 0) f.needs.splice(at, 1); else f.needs.push(e.id);
+          changed(true);
+        });
+        r1.appendChild(p);
+      });
+      fb.appendChild(r1);
+      var r2 = el('div', 'frow');
+      r2.appendChild(el('span', 'label', 'Gives'));
+      var sel = el('select', 'sel');
+      sel.setAttribute('aria-label', 'Event this formula gives');
+      var ph = el('option', '', outs.length ? 'Choose an event' : 'Add events to section ' + (s + 1) + ' first');
+      ph.value = '';
+      sel.appendChild(ph);
+      outs.forEach(function (e) {
+        var op = el('option', '', evLabel(e)); op.value = e.id;
+        bind(e.id, function () { op.textContent = evLabel(e); });
+        if (f.gives === e.id) op.selected = true;
+        sel.appendChild(op);
+      });
+      sel.addEventListener('change', function () { f.gives = sel.value; changed(true); });
+      r2.appendChild(sel);
+      var df = el('button', 'btn small danger', 'Delete formula');
+      df.type = 'button';
+      df.addEventListener('click', function () { n.formulas.splice(fi, 1); changed(true); });
+      r2.appendChild(df);
+      fb.appendChild(r2);
+      box.appendChild(fb);
+    });
+    var af = el('button', 'btn small', 'Add formula');
+    af.type = 'button';
+    af.style.justifySelf = 'start';
+    af.addEventListener('click', function () { n.formulas.push({ needs: [], gives: '' }); changed(true); });
+    box.appendChild(af);
+    return box;
+  }
+
+  function showMsgs(id, errors, warnings, ok) {
+    var ul = $(id);
+    ul.textContent = '';
+    errors.forEach(function (m) { ul.appendChild(el('li', 'bad', m)); });
+    if (ok) ul.appendChild(el('li', 'meh', ok));
+    warnings.forEach(function (m) { ul.appendChild(el('li', 'meh', 'Note: ' + m)); });
+  }
+
+  /* ----------------------------------------------------------------- board */
+  var cols = $('cols'), stage = $('stage'), svg = $('wires');
+  var NS = 'http://www.w3.org/2000/svg';
+  var chips = {}, cards = {}, rows = {}, stats = {}, wires = [];
+
+  function syncOn() {
+    var next = {};
+    M.toggles.forEach(function (id) {
+      next[id] = on.hasOwnProperty(id) ? on[id] : (M.events[id].k === 'start' ? 1 : 0);
+    });
+    on = next;
+  }
+  function defaults() {
+    on = {};
+    M.toggles.forEach(function (id) { on[id] = M.events[id].k === 'start' ? 1 : 0; });
+  }
+  function bitsOf() { return M.toggles.map(function (id) { return on[id] ? 1 : 0; }); }
+
+  function column(kind, head) {
+    var c = el('div', 'col ' + kind);
+    c.appendChild(el('div', 'head', head));
+    var b = el('div', 'body');
+    c.appendChild(b);
+    cols.appendChild(c);
+    return b;
+  }
+
+  function chip(id) {
+    var e = M.events[id];
+    var toggle = e.k === 'start' || e.k === 'isolated';
+    var n = el(toggle ? 'button' : 'div', 'ev' + (toggle ? ' toggle' : '') + (e.k === 'ending' ? ' ending' : ''));
+    if (toggle) {
+      n.type = 'button';
+      n.addEventListener('click', function () { on[id] = on[id] ? 0 : 1; update(); });
+    }
+    n.appendChild(el('span', 'mk'));
+    n.appendChild(el('span', '', e.l));
+    if (e.k === 'isolated') n.appendChild(el('span', 'tag', 'isolated'));
+    chips[id] = n;
+    return n;
+  }
+
+  function nodeCard(n) {
+    var card = el('div', 'node');
+    var head = el('div', 'nhead');
+    var left = el('div');
+    left.appendChild(el('span', 'nname', n.name));
+    if (n.type === 'pass') left.appendChild(el('span', 'nkind', 'pass-through'));
+    if (n.type === 'final') left.appendChild(el('span', 'nkind', 'final'));
+    var st = el('span', 'nstat', 'silent');
+    head.appendChild(left); head.appendChild(st);
+    card.appendChild(head);
+    rows[n.id] = [];
+    n.f.forEach(function (f) {
+      var r = el('div', 'row');
+      var top = el('div', 'rtop');
+      top.appendChild(el('span', 'formula', f.r.map(function (x) { return M.events[x].l; }).join(' + ')));
+      var s = el('span', 'st', '');
+      top.appendChild(s);
+      r.appendChild(top);
+      r.appendChild(el('div', 'out', '→ ' + M.events[f.o].l));
+      r._st = s;
+      card.appendChild(r);
+      rows[n.id].push(r);
+    });
+    cards[n.id] = card;
+    stats[n.id] = st;
+    return card;
+  }
+
+  function renderBoard() {
+    cols.textContent = ''; svg.textContent = '';
+    chips = {}; cards = {}; rows = {}; stats = {}; wires = [];
+    for (var s = 1; s <= M.last; s++) {
+      (function (s) {
+        var eb = column('events', 'Section ' + s + (s === 1 ? ' · starting' : ' · events'));
+        M.order.filter(function (id) { return M.events[id].s === s; }).forEach(function (id) { eb.appendChild(chip(id)); });
+        var nb = column('nodes', 'Section ' + s + ' · nodes');
+        M.nodes.filter(function (n) { return n.s === s; }).forEach(function (n) { nb.appendChild(nodeCard(n)); });
+      })(s);
+    }
+    var endBody = column('endings', 'Endings');
+    M.endings.forEach(function (id) { endBody.appendChild(chip(id)); });
+    M.nodes.forEach(function (n) {
+      var inputs = [];
+      n.f.forEach(function (f) { f.r.forEach(function (x) { if (inputs.indexOf(x) < 0) inputs.push(x); }); });
+      inputs.forEach(function (x, i) {
+        wires.push({ kind: 'in', ev: x, node: n.id, idx: i, count: inputs.length, path: document.createElementNS(NS, 'path') });
+      });
+      n.f.forEach(function (f, fi) {
+        wires.push({ kind: 'out', ev: f.o, node: n.id, fi: fi, path: document.createElementNS(NS, 'path') });
+      });
+    });
+    wires.forEach(function (w) { w.path.setAttribute('class', 'w'); svg.appendChild(w.path); });
+  }
+
+  function pt(elm, side, dy) {
+    var r = elm.getBoundingClientRect(), s = stage.getBoundingClientRect();
+    return { x: (side === 'r' ? r.right : r.left) - s.left, y: r.top + r.height / 2 - s.top + (dy || 0) };
+  }
+  function draw() {
+    if (!M) return;
+    svg.setAttribute('width', stage.scrollWidth);
+    svg.setAttribute('height', stage.offsetHeight);
+    wires.forEach(function (w) {
+      if (!chips[w.ev]) return;
+      var a, b;
+      if (w.kind === 'in') {
+        a = pt(chips[w.ev], 'r');
+        b = pt(cards[w.node], 'l', (w.idx - (w.count - 1) / 2) * 9);
+      } else {
+        a = pt(rows[w.node][w.fi], 'r');
+        b = pt(chips[w.ev], 'l');
+      }
+      var dx = Math.max(24, (b.x - a.x) * 0.5);
+      w.path.setAttribute('d', 'M' + a.x + ' ' + a.y + ' C' + (a.x + dx) + ' ' + a.y + ' ' + (b.x - dx) + ' ' + b.y + ' ' + b.x + ' ' + b.y);
+    });
+  }
+
+  function update() {
+    var R = evalC(C, bitsOf());
+    M.order.forEach(function (id, i) {
+      if (!chips[id]) return;
+      var isOn = !!R.ev[i];
+      chips[id].classList.toggle('on', isOn);
+      if (chips[id].tagName === 'BUTTON') chips[id].setAttribute('aria-pressed', isOn ? 'true' : 'false');
+    });
+    M.nodes.forEach(function (n, ni) {
+      var r = R.res[ni];
+      cards[n.id].classList.toggle('fired', r.winner >= 0);
+      cards[n.id].classList.toggle('conflict', r.conflict);
+      stats[n.id].textContent = r.conflict ? 'conflict' : (r.winner >= 0 ? 'fires one' : 'silent');
+      rows[n.id].forEach(function (row, i) {
+        var met = r.matched.indexOf(i) >= 0;
+        row.classList.toggle('met', met);
+        row.classList.toggle('fired', r.winner === i);
+        row.classList.toggle('outranked', met && r.winner >= 0 && r.winner !== i);
+        row.classList.toggle('conflict', r.conflict && met);
+        row._st.textContent = r.winner === i ? 'fires' : (met ? (r.conflict ? 'tied' : 'outranked') : '');
+      });
+    });
+    wires.forEach(function (w) {
+      var ni = M.nodes.findIndex(function (n) { return n.id === w.node; });
+      var active = w.kind === 'in' ? !!R.ev[C.idx[w.ev]] : R.res[ni].winner === w.fi;
+      var was = w.path.classList.contains('on');
+      w.path.classList.toggle('on', active);
+      if (active && !was) svg.appendChild(w.path);
+    });
+    var ends = M.endings.filter(function (id) { return R.ev[C.idx[id]]; });
+    var anyConflict = R.conf.length > 0;
+    var box = $('result');
+    box.textContent = '';
+    box.classList.toggle('dead', !ends.length);
+    box.appendChild(el('span', 'label', ends.length > 1 ? 'Endings this playthrough' : 'Ending this playthrough'));
+    box.appendChild(el('span', 'name', ends.length ? ends.map(function (id) { return M.events[id].l; }).join(' + ') : 'No ending fires'));
+    if (!ends.length) {
+      box.appendChild(el('p', 'hint', anyConflict
+        ? 'Two formulas in one node could not be ranked and both were true. The node stayed silent, so rewrite one of them.'
+        : 'A node found no formula it could satisfy, so the story stopped before the last section.'));
+    }
+  }
+
+  function applyCube(cube) {
+    on = {};
+    M.toggles.forEach(function (id, i) { on[id] = cube.charAt(i) === '1' ? 1 : 0; });
+    update();
+    $('board').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function applyMask(mask) {
+    on = {};
+    M.toggles.forEach(function (id, i) { on[id] = (mask >> i) & 1; });
+    update();
+    $('board').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* --------------------------------------------------------------- results */
+  function fText(ni, fi) {
+    var f = C.nodes[ni].f[fi];
+    return f.r.map(function (x) { return M.events[M.order[x]].l; }).join(' + ') + ' → ' + M.events[M.order[f.o]].l;
+  }
+  function endName(ends) { return ends.map(function (j) { return M.events[M.endings[j]].l; }).join(' + '); }
+
+  function issue(kind, strong, text, btnText, onBtn) {
+    var d = el('div', 'issue ' + kind);
+    var t = el('div', 'txt2');
+    t.appendChild(el('b', '', strong + ' '));
+    t.appendChild(document.createTextNode(text));
+    d.appendChild(t);
+    if (btnText) {
+      var b = el('button', 'btn small', btnText);
+      b.type = 'button';
+      b.addEventListener('click', onBtn);
+      d.appendChild(b);
+    }
+    return d;
+  }
+
+  function cubeRow(cube) {
+    var row = el('div', 'cube');
+    var onL = [], offL = [], anyL = [];
+    M.toggles.forEach(function (id, i) {
+      var ch = cube.charAt(i);
+      (ch === '1' ? onL : ch === '0' ? offL : anyL).push(id);
+    });
+    function group(label, ids, cls) {
+      if (!ids.length) return;
+      var g = el('div', 'cg');
+      g.appendChild(el('span', 'cgl', label));
+      ids.forEach(function (id) { g.appendChild(el('span', 'cb ' + cls, M.events[id].l)); });
+      row.appendChild(g);
+    }
+    group('must happen', onL, 'on');
+    group('must not happen', offL, 'off');
+    group('either way', anyL, 'any');
+    var b = el('button', 'btn small', 'Try it');
+    b.type = 'button';
+    b.addEventListener('click', function () { applyCube(cube.replace(/-/g, '0')); });
+    row.appendChild(b);
+    return row;
+  }
+
+  function renderPatterns(rt, host) {
+    host.textContent = '';
+    var n = A.n;
+    if (rt.masks.length > QM_LIMIT) {
+      var cube = '';
+      for (var i = 0; i < n; i++) {
+        var ones = 0;
+        for (var j = 0; j < rt.masks.length; j++) ones += (rt.masks[j] >> i) & 1;
+        cube += ones === rt.masks.length ? '1' : (ones === 0 ? '0' : '-');
+      }
+      host.appendChild(el('p', 'note', 'There are too many combinations here to split into patterns. This shows what is true of all of them.'));
+      host.appendChild(cubeRow(cube));
+      return;
+    }
+    cubesFor(rt.masks, n).forEach(function (c) { host.appendChild(cubeRow(c)); });
+  }
+
+  function renderCombos(rt, host) {
+    host.textContent = '';
+    var list = el('div', 'plist');
+    rt.masks.slice(0, LIST_LIMIT).forEach(function (mask) {
+      var names = [];
+      M.toggles.forEach(function (id, i) { if ((mask >> i) & 1) names.push(M.events[id].l); });
+      var item = el('div', 'pitem');
+      item.appendChild(el('span', '', names.length ? names.join(' + ') : 'No switches on'));
+      var b = el('button', 'btn small', 'Try it');
+      b.type = 'button';
+      b.addEventListener('click', function () { applyMask(mask); });
+      item.appendChild(b);
+      list.appendChild(item);
+    });
+    host.appendChild(list);
+    if (rt.masks.length > LIST_LIMIT) host.appendChild(el('p', 'note', 'Showing the first ' + LIST_LIMIT + ' of ' + fmt(rt.masks.length) + '.'));
+  }
+
+  function lazyDetails(summary, open, build) {
+    var d = el('details', 'sub');
+    d.appendChild(el('summary', '', summary));
+    var host = el('div');
+    d.appendChild(host);
+    var done = false;
+    function go() { if (d.open && !done) { done = true; build(host); } }
+    d.addEventListener('toggle', go);
+    if (open) { d.open = true; go(); }
+    return d;
+  }
+
+  function routeBlock(g, rt, i) {
+    var r = el('div', 'route');
+    if (g.ends.length) {
+      r.appendChild(el('div', 'rmeta', 'Route ' + (i + 1) + ' · ' + plural(rt.count, 'combination', 'combinations')));
+      var ol = el('ol', 'steps');
+      rt.steps.forEach(function (k) {
+        var ni = Math.floor(k / 1000), fi = k % 1000;
+        var li = el('li');
+        li.appendChild(el('span', 'stag', 'Section ' + C.nodes[ni].s));
+        li.appendChild(el('b', '', C.nodes[ni].name));
+        li.appendChild(el('span', 'sf', fText(ni, fi)));
+        ol.appendChild(li);
+      });
+      r.appendChild(ol);
+    } else {
+      r.appendChild(el('div', 'rmeta', (rt.stop === 0 ? 'Nothing fires' : 'Stops after section ' + rt.stop) + ' · ' + plural(rt.count, 'combination', 'combinations')));
+    }
+    r.appendChild(lazyDetails('Choices that lead here', rt.count <= 200, function (host) { renderPatterns(rt, host); }));
+    r.appendChild(lazyDetails('All ' + fmt(rt.count) + (rt.count === 1 ? ' combination' : ' combinations'), false, function (host) { renderCombos(rt, host); }));
+    return r;
+  }
+
+  function renderResults() {
+    var box = $('results-body');
+    box.textContent = '';
+    if (A.tooMany) {
+      box.appendChild(el('p', 'note', 'This framework has ' + A.n + ' switches, which is ' + fmt(Math.pow(2, A.n)) + ' combinations. The page counts up to ' + MAX_SWITCHES + ' switches. Remove or merge some switches, or ask for the merging method for bigger stories.'));
+      return;
+    }
+    var reachable = {};
+    A.groups.forEach(function (g) { g.ends.forEach(function (j) { reachable[j] = 1; }); });
+    var nReach = Object.keys(reachable).length;
+    box.appendChild(el('p', 'note', plural(A.n, 'switch', 'switches') + ' can each be on or off: ' + M.toggles.map(function (id) { return M.events[id].l; }).join(', ') + '. That gives ' + fmt(A.total) + ' combinations. Every combination leads to one result, so the counts below add up to ' + fmt(A.total) + '. ' + nReach + ' of ' + plural(M.endings.length, 'ending', 'endings') + ' can be reached.'));
+
+    var iss = el('div', 'issues');
+    var problems = 0;
+    A.conflicts.forEach(function (cf) {
+      problems++;
+      iss.appendChild(issue('bad', 'Conflict in ' + C.nodes[cf.ni].name + '.',
+        cf.tied.map(function (fi) { return '"' + fText(cf.ni, fi) + '"'; }).join(' and ') + ' are true together in ' + plural(cf.count, 'combination', 'combinations') + ' and neither needs more than the other. The node stays silent. Make one formula need every event of the other plus more, or change them so both cannot be true at once.',
+        'Show one', function () { applyMask(cf.mask); }));
+    });
+    M.endings.forEach(function (id, j) {
+      if (!reachable[j]) { problems++; iss.appendChild(issue('bad', 'Unreachable ending.', 'No combination of choices gives "' + M.events[id].l + '".')); }
+    });
+    var never = [];
+    C.nodes.forEach(function (nd, ni) { nd.f.forEach(function (f, fi) { if (A.fires[ni][fi] === 0) never.push(nd.name + ': ' + fText(ni, fi)); }); });
+    if (never.length) { problems++; iss.appendChild(issue('bad', plural(never.length, 'formula never fires.', 'formulas never fire.'), never.join('; '))); }
+    var dead = A.groups.filter(function (g) { return !g.ends.length; })[0];
+    if (dead) {
+      problems++;
+      iss.appendChild(issue('meh', 'Dead ends.', fmt(dead.count) + ' of ' + fmt(A.total) + ' combinations (' + Math.round(100 * dead.count / A.total) + '%) reach no ending.'));
+    }
+    if (!A.conflicts.length && !never.length && nReach === M.endings.length) iss.insertBefore(issue('good', 'No conflicts.', 'Every ending can be reached and every formula fires in some combination.'), iss.firstChild);
+    box.appendChild(iss);
+
+    var bars = el('div', 'bars');
+    A.groups.forEach(function (g) {
+      var b = el('div', 'bar' + (g.ends.length ? '' : ' none'));
+      var top = el('div', 'bar-top');
+      top.appendChild(el('span', 'bar-name', g.ends.length ? endName(g.ends) : 'No ending'));
+      top.appendChild(el('span', 'num', fmt(g.count) + ' of ' + fmt(A.total) + ' · ' + plural(g.routes.length, 'route', 'routes')));
+      b.appendChild(top);
+      var tr = el('div', 'track'), fl = el('div', 'fill');
+      fl.style.width = (g.count / A.total * 100) + '%';
+      tr.appendChild(fl); b.appendChild(tr);
+      bars.appendChild(b);
+    });
+    M.endings.forEach(function (id, j) {
+      if (reachable[j]) return;
+      var b = el('div', 'bar none');
+      var top = el('div', 'bar-top');
+      top.appendChild(el('span', 'bar-name', M.events[id].l));
+      top.appendChild(el('span', 'num', '0 of ' + fmt(A.total) + ' · unreachable'));
+      b.appendChild(top);
+      bars.appendChild(b);
+    });
+    box.appendChild(bars);
+
+    A.groups.forEach(function (g) {
+      var d = el('details', 'group' + (g.ends.length ? '' : ' none'));
+      if (g.ends.length) d.open = true;
+      var sm = el('summary');
+      sm.appendChild(el('span', '', g.ends.length ? endName(g.ends) : 'No ending (the story stops early)'));
+      sm.appendChild(el('span', 'num', plural(g.count, 'combination', 'combinations') + ' · ' + plural(g.routes.length, 'route', 'routes')));
+      d.appendChild(sm);
+      g.routes.forEach(function (rt, i) { d.appendChild(routeBlock(g, rt, i)); });
+      box.appendChild(d);
+    });
+  }
+
+  /* ----------------------------------------------------------------- flow */
+  var lastOk = false;
+  function recompute() {
+    var out = buildModel(data);
+    showMsgs('buildmsgs', out.errors, out.warnings, '');
+    if (out.errors.length) {
+      lastOk = false;
+      $('board').hidden = true;
+      $('results-body').textContent = '';
+      $('results-body').appendChild(el('p', 'note', 'Finish the points listed under Build and the results appear here.'));
+      return;
+    }
+    $('board').hidden = false;
+    M = out.model; C = compile(M);
+    syncOn();
+    renderBoard();
+    A = analyze(C);
+    renderResults();
+    update();
+    draw();
+    lastOk = true;
+    if (document.activeElement !== $('json')) $('json').value = JSON.stringify(data, null, 2);
+  }
+
+  /* ------------------------------------------------------------- controls */
+  function armed(btn, label, action) {
+    var t = null, armedNow = false, orig = btn.textContent;
+    btn.addEventListener('click', function () {
+      if (!armedNow) {
+        armedNow = true; btn.textContent = label;
+        t = setTimeout(function () { armedNow = false; btn.textContent = orig; }, 3500);
+        return;
+      }
+      clearTimeout(t); armedNow = false; btn.textContent = orig;
+      action();
+    });
+  }
+
+  $('addsec').addEventListener('click', function () {
+    var S = data.sections;
+    data.events.forEach(function (e) { if (e.section === S) e.section = S + 1; });
+    data.sections = S + 1;
+    changed(true);
+  });
+  armed($('sample'), 'Click again to replace your work', function () { data = clone(SAMPLE); on = {}; changed(true); });
+  armed($('clearall'), 'Click again to erase everything', function () { data = { sections: 3, events: [], nodes: [] }; on = {}; changed(true); });
+  $('reset').addEventListener('click', function () { if (M) { defaults(); update(); } });
+  $('clear').addEventListener('click', function () { if (M) { on = {}; M.toggles.forEach(function (id) { on[id] = 0; }); update(); } });
+
+  $('copyjson').addEventListener('click', function () {
+    var ta = $('json');
+    function fallback() { ta.focus(); ta.select(); showMsgs('jsonmsgs', [], [], 'Text selected. Press copy on your keyboard.'); }
+    try {
+      navigator.clipboard.writeText(ta.value).then(function () { showMsgs('jsonmsgs', [], [], 'Copied.'); }, fallback);
+    } catch (e) { fallback(); }
+  });
+  $('loadjson').addEventListener('click', function () {
+    var parsed;
+    try { parsed = JSON.parse($('json').value); }
+    catch (e) { showMsgs('jsonmsgs', ['The text is not valid: ' + e.message], [], ''); return; }
+    var d = normalize(parsed);
+    if (!d) { showMsgs('jsonmsgs', ['The text needs an "events" list and a "nodes" list.'], [], ''); return; }
+    data = d; on = {};
+    changed(true);
+    showMsgs('jsonmsgs', [], [], 'Loaded.');
+  });
+
+  /* ----------------------------------------------------------------- boot */
+  try {
+    var stored = localStorage.getItem(STORE);
+    if (stored) data = normalize(JSON.parse(stored));
+  } catch (e) { data = null; }
+  if (!data) data = clone(SAMPLE);
+  cleanup();
+  renderEditor();
+  recompute();
+  window.addEventListener('resize', draw);
+  if (window.ResizeObserver) new ResizeObserver(draw).observe(stage);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+})();
+</script>
