@@ -3,252 +3,295 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101827">
-  <meta name="description" content="Learn how to use Story Node Map to plan, test, and analyze choose-your-own-adventure stories.">
-  <title>Story Node Map — Quick Start Tutorial</title>
+  <meta name="theme-color" content="#EDF0F3">
+  <meta name="description" content="A hands-on, step-by-step tutorial for building and testing a branching story with Story Node Map.">
+  <title>Learn Story Node Map — Interactive Tutorial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #0b1120;
-      --panel: #121c2e;
-      --panel-soft: #17243a;
-      --text: #edf3ff;
-      --muted: #aab8d0;
-      --accent: #8bafff;
-      --accent-strong: #5687ff;
-      --border: #2b3b56;
-      --green: #7ee0bd;
-      --yellow: #f6d58a;
+      color-scheme: light;
+      --bg:#EDF0F3; --surface:#FFFFFF; --ink:#18212B; --muted:#556272;
+      --line:#C3CCD6; --accent:#0B7A78; --accent-soft:#D5EEEC; --on-accent:#FFFFFF;
+      --warn:#A8431A; --warn-soft:#F8E3DA; --good:#176B4D; --good-soft:#DDF3E8;
+      --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+      --body:'Hanken Grotesk','Segoe UI',system-ui,sans-serif;
+      --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
     }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background:
-        radial-gradient(ellipse at 15% 0%, rgba(86,135,255,.17), transparent 36rem),
-        radial-gradient(ellipse at 100% 15%, rgba(126,224,189,.08), transparent 30rem),
-        var(--bg);
-      color: var(--text);
-      font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    @media(prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme:dark; --bg:#11171D; --surface:#1A222B; --ink:#E5EBF1; --muted:#98A6B5;
+        --line:#34424F; --accent:#43C6C1; --accent-soft:#17383B; --on-accent:#07201F;
+        --warn:#F09A72; --warn-soft:#3A2318; --good:#7ED9B2; --good-soft:#18382D;
+      }
     }
-    a { color: var(--accent); }
-    a:hover { color: #c4d6ff; }
-    .wrap { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
-    header { padding: 22px 0; border-bottom: 1px solid rgba(170,184,208,.16); }
-    .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .brand { color: var(--text); font-weight: 800; text-decoration: none; letter-spacing: -.03em; }
-    .nav-links { display: flex; flex-wrap: wrap; gap: 18px; font-size: .92rem; }
-    .nav-links a { text-decoration: none; color: var(--muted); }
-    .hero { padding: 76px 0 56px; }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 6px 11px; border: 1px solid var(--border); border-radius: 999px;
-      color: var(--green); background: rgba(126,224,189,.06);
-      font-size: .82rem; font-weight: 700;
+    :root[data-theme="dark"] {
+      color-scheme:dark; --bg:#11171D; --surface:#1A222B; --ink:#E5EBF1; --muted:#98A6B5;
+      --line:#34424F; --accent:#43C6C1; --accent-soft:#17383B; --on-accent:#07201F;
+      --warn:#F09A72; --warn-soft:#3A2318; --good:#7ED9B2; --good-soft:#18382D;
     }
-    h1 { font-size: clamp(2.5rem, 7vw, 4.8rem); line-height: 1.04; letter-spacing: -.055em; margin: 20px 0; max-width: 850px; }
-    h1 span { color: var(--accent); }
-    .lead { max-width: 740px; color: var(--muted); font-size: clamp(1.05rem, 2.3vw, 1.25rem); }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-    .btn {
-      display: inline-flex; justify-content: center; align-items: center; gap: 9px;
-      min-height: 48px; padding: 12px 18px; border-radius: 12px;
-      text-decoration: none; font-weight: 800; border: 1px solid transparent;
-      transition: transform .15s ease, background .15s ease;
-    }
-    .btn:hover { transform: translateY(-2px); }
-    .primary { background: var(--accent-strong); color: white; }
-    .primary:hover { background: #719aff; color: white; }
-    .secondary { border-color: var(--border); background: rgba(255,255,255,.035); color: var(--text); }
-    .secondary:hover { background: var(--panel-soft); color: white; }
-    .notice { color: var(--muted); font-size: .9rem; margin-top: 14px; }
-    section { padding: 34px 0; }
-    .section-head { margin-bottom: 22px; }
-    h2 { font-size: clamp(1.7rem, 4vw, 2.35rem); line-height: 1.2; letter-spacing: -.035em; margin: 0 0 10px; }
-    h3 { margin: 0 0 8px; font-size: 1.1rem; }
-    p { margin: 0 0 12px; }
-    .muted { color: var(--muted); }
-    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-    .card {
-      padding: 22px; border: 1px solid var(--border); border-radius: 18px;
-      background: linear-gradient(145deg, rgba(23,36,58,.92), rgba(18,28,46,.9));
-    }
-    .number {
-      display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px;
-      background: rgba(139,175,255,.14); color: var(--accent); font-weight: 900; margin-bottom: 15px;
-    }
-    .concepts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .concept {
-      padding: 18px; border: 1px solid var(--border); border-radius: 14px;
-      background: rgba(18,28,46,.72);
-    }
-    .concept strong { display: block; margin-bottom: 5px; color: var(--text); }
-    .concept p { color: var(--muted); margin: 0; }
-    .callout {
-      border: 1px solid rgba(246,213,138,.35); background: rgba(246,213,138,.07);
-      border-radius: 14px; padding: 18px 20px; color: var(--muted);
-    }
-    .callout strong { color: var(--yellow); }
-    .steps { padding-left: 22px; }
-    .steps li { padding: 0 0 10px 6px; }
-    .final-cta {
-      text-align: center; margin: 40px 0 64px; padding: clamp(24px, 5vw, 48px);
-      border-radius: 24px; border: 1px solid var(--border);
-      background: linear-gradient(135deg, rgba(86,135,255,.15), rgba(126,224,189,.06));
-    }
-    .final-cta p { color: var(--muted); max-width: 620px; margin: 0 auto 20px; }
-    footer { border-top: 1px solid rgba(170,184,208,.16); padding: 24px 0 36px; color: var(--muted); font-size: .9rem; }
-    footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-    code { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
-    @media (max-width: 760px) {
-      .hero { padding-top: 52px; }
-      .grid { grid-template-columns: 1fr; }
-      .concepts { grid-template-columns: 1fr; }
-      .nav { align-items: flex-start; flex-direction: column; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after { transition: none !important; }
-    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--body);padding:0 16px 56px}
+    a{color:var(--accent)} a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+    .page{width:min(1120px,100%);margin:0 auto;display:grid;gap:20px}
+    header{padding:25px 0 18px;border-bottom:1px solid var(--line)}
+    .topline{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .brand{color:var(--ink);font-weight:700;text-decoration:none;font-family:var(--display);letter-spacing:-.02em}
+    nav{display:flex;gap:8px 16px;flex-wrap:wrap;font-size:13px} nav a{text-decoration:none;font-weight:600}
+    .hero{padding:36px 0 20px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(250px,.7fr);gap:28px;align-items:center}
+    .eyebrow,.tag{font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--accent)}
+    h1,h2,h3{font-family:var(--display);line-height:1.16;letter-spacing:-.025em}
+    h1{font-size:clamp(34px,5.2vw,58px);margin:10px 0 14px;max-width:760px}
+    h2{font-size:clamp(22px,3vw,29px);margin:0 0 8px}
+    h3{font-size:17px;margin:0 0 7px}
+    p{margin:0 0 12px} .lead{font-size:17px;color:var(--muted);max-width:65ch}
+    .muted,.note{color:var(--muted)} .note{font-size:13px}
+    .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;min-width:0}
+    .hero-card{border-left:4px solid var(--accent);background:var(--surface);border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:8px;padding:18px}
+    .hero-card strong{display:block;font-family:var(--display);font-size:19px;margin-bottom:5px}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:16px}
+    .btn{font:600 13px var(--body);color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:6px;padding:9px 13px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+    .btn:hover{background:var(--bg)} .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+    .btn.primary:hover{filter:brightness(1.08)} .btn:disabled{opacity:.4;cursor:not-allowed}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .step-layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:18px;align-items:start}
+    .step-list{display:grid;gap:6px}
+    .step-link{display:flex;align-items:flex-start;gap:10px;text-align:left;padding:10px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--ink);font:500 13px var(--body);cursor:pointer}
+    .step-link:hover{background:var(--bg)} .step-link[aria-current="step"]{border-color:var(--accent);background:var(--accent-soft)}
+    .step-num{display:grid;place-items:center;flex:0 0 25px;height:25px;border-radius:6px;border:1px solid var(--line);font:500 11px var(--mono)}
+    .step-link[aria-current="step"] .step-num{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+    .step-link.done .step-num{border-color:var(--good);color:var(--good)}
+    .step-title{display:block;font-weight:700;margin-bottom:2px}.step-sub{display:block;color:var(--muted);font-size:12px}
+    .lesson{min-width:0}
+    .lesson-top{display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:13px;margin-bottom:16px}
+    .progress{height:5px;background:var(--bg);border-radius:10px;overflow:hidden;margin-top:12px}.progress span{display:block;height:100%;width:14.285%;background:var(--accent);transition:width .2s}
+    .lesson-copy{min-height:165px}.lesson-copy ul{padding-left:20px;margin:8px 0 14px}.lesson-copy li{margin:6px 0}
+    .rule{padding:12px 14px;border:1px solid var(--line);border-radius:7px;background:var(--bg);margin:12px 0}
+    .formula{font:500 12px/1.7 var(--mono);overflow-wrap:anywhere}
+    .step-actions{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px;margin-top:18px}
+    .map-panel{display:grid;gap:14px}
+    .map-head{display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap}
+    .story-status{border:1px solid var(--line);border-radius:7px;padding:10px 12px;background:var(--bg);font-size:13px}
+    .status-label{font:500 10px var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);display:block;margin-bottom:3px}
+    .columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;align-items:stretch}
+    .story-col{min-width:0;border:1px solid var(--line);border-radius:7px;padding:9px;background:var(--bg)}
+    .story-col h3{font:500 10px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+    .event{padding:7px 8px;border:1px solid var(--line);border-radius:5px;background:var(--surface);font-size:11px;line-height:1.3;margin:5px 0;overflow-wrap:anywhere}
+    .event.active{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+    .event small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+    .flow-arrow{text-align:center;color:var(--accent);font:500 11px var(--mono);padding:3px 0}
+    .switches{display:flex;gap:8px;flex-wrap:wrap}
+    .switch{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--surface);font-size:12px;cursor:pointer}
+    .switch input{accent-color:var(--accent)}
+    .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+    .dot{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--accent);margin-right:5px}
+    .dot.off{background:var(--line)} .dot.ending{background:var(--good)}
+    .callout{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:7px;padding:13px 15px;background:var(--surface)}
+    .callout.warn{border-left-color:var(--warn)} .callout p:last-child{margin-bottom:0}
+    .concept-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .concept{border:1px solid var(--line);border-radius:7px;padding:14px}
+    .concept p{font-size:13px;color:var(--muted);margin:0}
+    footer{border-top:1px solid var(--line);padding-top:18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+    [hidden]{display:none!important}
+    @media(max-width:780px){.hero{grid-template-columns:1fr;padding-top:25px}.step-layout{grid-template-columns:1fr}.step-list{grid-template-columns:repeat(2,minmax(0,1fr))}.columns{grid-template-columns:repeat(2,minmax(0,1fr))}.lesson-copy{min-height:0}}
+    @media(max-width:460px){body{padding-inline:10px}.panel{padding:14px}.step-list{grid-template-columns:1fr 1fr}.step-link{padding:8px}.step-sub{display:none}.columns{gap:5px}.story-col{padding:6px}.event{padding:6px;font-size:10px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.progress span{transition:none}}
   </style>
 </head>
 <body>
+<div class="page">
   <header>
-    <div class="wrap nav">
-      <a class="brand" href="#top">✦ Story Node Map</a>
-      <nav class="nav-links" aria-label="Main navigation">
-        <a href="#how-it-works">How it works</a>
-        <a href="#quick-start">Quick start</a>
-        <a href="#concepts">Key concepts</a>
-        <a href="https://github.com/SiddharthBhaumik/CYOA-Story-map-tool" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+    <div class="topline">
+      <a class="brand" href="tutorial.html">✳ Story Node Map</a>
+      <nav aria-label="Main navigation">
+        <a href="#walkthrough">Walkthrough</a><a href="#live-map">Sample story</a>
+        <a href="#concepts">Key concepts</a><a href="story-node-map.html">Open the tool ↗</a>
       </nav>
     </div>
   </header>
 
-  <main id="top">
-    <div class="wrap">
-      <section class="hero">
-        <div class="eyebrow">A quick-start guide for interactive fiction</div>
-        <h1>Plan your story.<br><span>Test every path.</span></h1>
-        <p class="lead">
-          Story Node Map is a browser-based planning tool for choose-your-own-adventure
-          (CYOA) stories. Define events, connect them with logical rules, and explore how
-          different choices lead to different endings—all before you write every branch.
-        </p>
-        <div class="actions">
-          <a class="btn primary" href="story-node-map.html">Open Story Node Map <span aria-hidden="true">→</span></a>
-          <a class="btn secondary" href="#quick-start">Read the tutorial ↓</a>
-        </div>
-        <p class="notice">No installation required. Open the tool in your browser and start experimenting.</p>
-      </section>
-
-      <section id="how-it-works">
-        <div class="section-head">
-          <h2>How the tool thinks</h2>
-          <p class="muted">Instead of drawing every possible branch manually, you describe what can happen and the rules that connect events.</p>
-        </div>
-        <div class="grid">
-          <article class="card">
-            <div class="number">1</div>
-            <h3>Define events</h3>
-            <p class="muted">Create story facts or choices, such as “You took the key” or “The guard trusts you.” Events represent things that may be true in a playthrough.</p>
-          </article>
-          <article class="card">
-            <div class="number">2</div>
-            <h3>Build rule-based nodes</h3>
-            <p class="muted">Use nodes and formulas to specify which combinations of earlier events produce an event in the next section.</p>
-          </article>
-          <article class="card">
-            <div class="number">3</div>
-            <h3>Analyze the outcomes</h3>
-            <p class="muted">Explore switch combinations and inspect endings, routes, conflicts, formulas that never fire, and paths that lead nowhere.</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="quick-start">
-        <div class="section-head">
-          <h2>Your first story map</h2>
-          <p class="muted">Start small. You can add more sections and rules after you understand the flow.</p>
-        </div>
-        <div class="card">
-          <ol class="steps">
-            <li><strong>Open the tool.</strong> Use the <em>Open Story Node Map</em> button above. The planner opens in a separate page within the same site.</li>
-            <li><strong>Choose a starting point.</strong> Use <em>Load sample story</em> to inspect an example, or choose <em>Start empty</em> to create your own design.</li>
-            <li><strong>Add sections.</strong> Think of sections as stages in the story. The first section contains starting events; the final section contains ending events.</li>
-            <li><strong>Add events.</strong> Give each event a clear, distinct name. Prefer specific statements such as “Has brass key” over vague labels such as “Key”.</li>
-            <li><strong>Create nodes and formulas.</strong> A node evaluates the events in its section and can produce an event in the next section. A formula describes the conditions needed for that output.</li>
-            <li><strong>Try different choices.</strong> Open the play board and toggle starting events or isolated choices to see how the story state changes.</li>
-            <li><strong>Review the results.</strong> Check which endings are reachable and whether any combinations cause conflicts or dead ends.</li>
-            <li><strong>Save your work.</strong> The tool auto-saves in your browser. Use the save/load area to copy or load the story as JSON text so you can keep a backup or move it elsewhere.</li>
-          </ol>
-        </div>
-      </section>
-
-      <section id="concepts">
-        <div class="section-head">
-          <h2>Four concepts to know</h2>
-          <p class="muted">These are the building blocks of the planner.</p>
-        </div>
-        <div class="concepts">
-          <div class="concept">
-            <strong>Sections</strong>
-            <p>Stages in the story. Events in one section can influence what becomes true in the next.</p>
-          </div>
-          <div class="concept">
-            <strong>Events</strong>
-            <p>Facts, decisions, or story conditions that can be on or off in a given scenario.</p>
-          </div>
-          <div class="concept">
-            <strong>Nodes and formulas</strong>
-            <p>A node produces an output event when a formula's required events are all on. More specific formulas can take priority over formulas that require fewer events.</p>
-          </div>
-          <div class="concept">
-            <strong>Endings and routes</strong>
-            <p>The results view helps you inspect which endings are reachable and which choices or rules lead there.</p>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div class="callout">
-          <strong>Tip: test one rule at a time.</strong>
-          <p style="margin:6px 0 0">When a result surprises you, simplify the story temporarily. Check the input events, verify the formula conditions, and then add complexity back in. If equally specific rules compete, inspect the conflict report.</p>
-        </div>
-      </section>
-
-      <section>
-        <div class="section-head">
-          <h2>Save, share, and continue later</h2>
-        </div>
-        <div class="card">
-          <ul class="steps">
-            <li>Your current work is stored in the browser's local storage, so it is associated with that browser and device.</li>
-            <li>For a portable backup, open the save/load section and copy the story JSON text somewhere safe.</li>
-            <li>To restore a backup, paste the saved JSON into the load area and use the load control.</li>
-            <li>Keep a separate backup before making major changes to a complicated story.</li>
-          </ul>
-          <p class="muted" style="margin-bottom:0">Note: browser-local auto-save is not the same as cloud storage. Clearing browser data or switching devices may remove access to a locally saved story, so export a backup when it matters.</p>
-        </div>
-      </section>
-
-      <div class="final-cta">
-        <h2>Ready to map your story?</h2>
-        <p>Open the planner, load the sample to learn the system, or start from a blank story and build your own branching narrative.</p>
-        <div class="actions" style="justify-content:center">
-          <a class="btn primary" href="story-node-map.html">Launch Story Node Map →</a>
-          <a class="btn secondary" href="https://github.com/SiddharthBhaumik/CYOA-Story-map-tool" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
-        </div>
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Interactive tutorial · 7 short steps</div>
+      <h1>Build a story.<br><span style="color:var(--accent)">Watch the logic unfold.</span></h1>
+      <p class="lead">Learn Story Node Map by building one small adventure from beginning to ending. Move through the steps, see the map grow, and change the choices to watch the outcome update.</p>
+      <div class="btns">
+        <a class="btn primary" href="#walkthrough">Start the walkthrough ↓</a>
+        <a class="btn" href="story-node-map.html">Open the full editor ↗</a>
       </div>
     </div>
-  </main>
+    <aside class="hero-card">
+      <span class="tag">The story we’ll build</span>
+      <strong>The Midnight Archive</strong>
+      <p class="muted">You’re trapped in an old manor after midnight. Find a way out—with a little treasure, if you can—and decide whether to trust the cook.</p>
+      <p class="note" style="margin-bottom:0">You’ll learn sections, events, nodes, formulas, choices, and how to inspect endings.</p>
+    </aside>
+  </section>
 
-  <footer>
-    <div class="wrap">
-      <span>Story Node Map · Quick-start tutorial</span>
-      <span>Built for planning and testing interactive stories.</span>
+  <section id="walkthrough" class="panel">
+    <div class="section-head">
+      <div><div class="eyebrow">Follow along</div><h2>Build it one step at a time</h2><p class="note">Choose a step or use Next. The sample map beside/below the lesson updates as you progress.</p></div>
+      <span class="tag" id="step-count">STEP 1 / 7</span>
     </div>
-  </footer>
+    <div class="progress" aria-label="Tutorial progress"><span id="progress-fill"></span></div>
+    <div class="step-layout" style="margin-top:18px">
+      <nav class="step-list" id="step-list" aria-label="Tutorial steps">
+        <button class="step-link" data-step="0" aria-current="step"><span class="step-num">01</span><span><span class="step-title">Set the stages</span><span class="step-sub">Sections</span></span></button>
+        <button class="step-link" data-step="1"><span class="step-num">02</span><span><span class="step-title">Add your switches</span><span class="step-sub">Starting events</span></span></button>
+        <button class="step-link" data-step="2"><span class="step-num">03</span><span><span class="step-title">Add story events</span><span class="step-sub">What can happen</span></span></button>
+        <button class="step-link" data-step="3"><span class="step-num">04</span><span><span class="step-title">Write the rules</span><span class="step-sub">Nodes + formulas</span></span></button>
+        <button class="step-link" data-step="4"><span class="step-num">05</span><span><span class="step-title">Reach an ending</span><span class="step-sub">Final rules</span></span></button>
+        <button class="step-link" data-step="5"><span class="step-num">06</span><span><span class="step-title">Try other choices</span><span class="step-sub">Play board</span></span></button>
+        <button class="step-link" data-step="6"><span class="step-num">07</span><span><span class="step-title">Check every path</span><span class="step-sub">Results</span></span></button>
+      </nav>
+      <article class="lesson">
+        <div class="lesson-top"><div><div class="eyebrow" id="lesson-kicker">STEP 01 · STRUCTURE</div><h2 id="lesson-title">Set the stages</h2></div></div>
+        <div class="lesson-copy" id="lesson-copy" aria-live="polite"></div>
+        <div class="step-actions">
+          <button class="btn" id="prev-step" type="button" disabled>← Previous</button>
+          <button class="btn primary" id="next-step" type="button">Next step →</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel map-panel" id="live-map">
+    <div class="map-head">
+      <div><div class="eyebrow">Your work in progress</div><h2>The Midnight Archive</h2><p class="note">This is a teaching-sized map. As you advance, more of the framework appears. In the choice step, toggle the switches to play a scenario.</p></div>
+      <div class="story-status" aria-live="polite"><span class="status-label">Current outcome</span><strong id="outcome">Choose a path to begin</strong></div>
+    </div>
+    <div class="columns" id="sample-columns" aria-label="Sample story map"></div>
+    <div id="choice-controls" hidden>
+      <div class="rule"><strong>Try a different playthrough</strong><p class="note" style="margin:4px 0 10px">Switches represent facts available at the start of the story. Change them and the route/outcome below will update.</p><div class="switches">
+        <label class="switch"><input type="checkbox" id="choice-key" checked> Cellar key</label>
+        <label class="switch"><input type="checkbox" id="choice-map" checked> Secret map</label>
+        <label class="switch"><input type="checkbox" id="choice-lamp" checked> Lantern</label>
+        <label class="switch"><input type="checkbox" id="choice-ally"> Cook trusts you</label>
+        <label class="switch"><input type="checkbox" id="choice-storm"> Storm breaks</label>
+      </div></div>
+    </div>
+    <div class="legend"><span><i class="dot"></i>Active event / rule</span><span><i class="dot off"></i>Inactive or not reached</span><span><i class="dot ending"></i>Ending reached</span></div>
+    <div class="callout" id="map-explanation"><strong>How to read this:</strong> Sections move left to right. A node in one section reads its events and can activate an event in the next section.</div>
+  </section>
+
+  <section class="panel" id="concepts">
+    <div class="section-head"><div><div class="eyebrow">Keep these in mind</div><h2>The building blocks</h2></div></div>
+    <div class="concept-grid">
+      <article class="concept"><h3>Sections</h3><p>Story stages processed in order. A node can only produce events in the next section.</p></article>
+      <article class="concept"><h3>Events</h3><p>Facts, choices, or outcomes that can be on or off. Creating an event alone does not make it happen.</p></article>
+      <article class="concept"><h3>Nodes</h3><p>Named rule groups. Each formula lists the conditions it needs and the event it gives.</p></article>
+      <article class="concept"><h3>Formulas</h3><p>Every required event must be active. For example, Key + Lantern means both are needed.</p></article>
+      <article class="concept"><h3>Isolated choices</h3><p>Optional middle-stage events switched directly by the player rather than produced by a node.</p></article>
+      <article class="concept"><h3>Results</h3><p>Exhaustive analysis checks combinations and reports reachable endings, routes, conflicts, and dead ends.</p></article>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head"><div><div class="eyebrow">Ready to experiment?</div><h2>Take the same idea into the real editor</h2><p class="muted">The full editor contains the complete builder, play board, exhaustive results, and JSON save/load controls.</p></div></div>
+    <div class="btns"><a class="btn primary" href="story-node-map.html">Open Story Node Map ↗</a><button class="btn" id="restart" type="button">Restart tutorial</button></div>
+    <p class="note" style="margin-top:12px;margin-bottom:0">Tip: in the editor, click <strong>Load sample story</strong> twice to confirm replacing your current work, then inspect its rules before starting your own framework.</p>
+  </section>
+
+  <footer><span>Story Node Map · Interactive quick-start</span><span>Designed to help you plan, play, and test branching stories.</span></footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var steps = [
+    {
+      kicker:'STEP 01 · STRUCTURE', title:'Set the stages',
+      copy:'<p>Start by deciding how many stages your adventure needs. We’ll use four sections: the starting situation, exploration, escape, and endings.</p><div class="rule"><div class="formula">SECTION 1 → SECTION 2 → SECTION 3 → SECTION 4</div></div><ul><li><strong>Section 1:</strong> what the character starts with or knows.</li><li><strong>Sections 2–3:</strong> events produced as the story unfolds.</li><li><strong>Section 4:</strong> the possible endings.</li></ul><p class="muted">In the full editor, use <strong>Add time section</strong> until you have the stages you need. The final section is always where ending events belong.</p>',
+      explanation:'Only the first stage is visible so far. We’ll add starting switches next.'
+    },
+    {
+      kicker:'STEP 02 · STARTING EVENTS', title:'Add your switches',
+      copy:'<p>Starting events are facts that can be true before the adventure begins. Each becomes an on/off switch in the Play Board.</p><div class="rule"><div class="formula">Cellar key · Secret map · Lantern · Cook’s trust</div></div><ul><li>A key may open the cellar.</li><li>A map may reveal a hidden passage.</li><li>A lantern may help you explore in the dark.</li><li>The cook’s trust may reveal a quieter way out.</li></ul><p>These are not actions the system automatically takes. They are conditions that rules can check. Try switching them on and off later.</p>',
+      explanation:'The starting events are now visible. They are switches, not guaranteed story outcomes.'
+    },
+    {
+      kicker:'STEP 03 · EVENTS', title:'Add events that can happen',
+      copy:'<p>Now describe what might become true later. Put exploration events in Section 2, escape events in Section 3, and endings in Section 4.</p><div class="rule"><div class="formula">Section 2: Cellar explored · Treasure room · Hidden passage · Night exit<br>Section 3: Treasure in hand · Gate unlocked · Quiet exit<br>Section 4: Rich and free · Rich but hunted · Free, unnoticed · Free, empty-handed</div></div><p><strong>Important:</strong> an event name is only a label. An intermediate event usually needs a formula that produces it. Use an isolated choice only when you want the player to switch that middle-stage event directly.</p>',
+      explanation:'The map now has possible events and endings. They are inactive until a rule produces them or a switch is turned on.'
+    },
+    {
+      kicker:'STEP 04 · NODES + FORMULAS', title:'Write the rules',
+      copy:'<p>A node groups related formulas. Each formula has <strong>Needs</strong> and <strong>Gives</strong>: all the needed events must be on for its output to activate in the next section.</p><div class="rule"><div class="formula">Cellar key + Lantern → Cellar explored<br>Cellar key + Lantern + Secret map → Treasure room<br>Cellar key + Secret map → Hidden passage</div></div><p>The more specific first rule can outrank a less specific rule when both match. If two matching formulas cannot be ranked, the node reports a conflict instead of choosing arbitrarily.</p><p>In the editor, create a node, select its required events under <strong>Needs</strong>, and choose one output under <strong>Gives</strong>.</p>',
+      explanation:'Rules connect the starting switches to the middle-stage events. A formula only matches when every required event is active.'
+    },
+    {
+      kicker:'STEP 05 · ENDINGS', title:'Connect the story to an ending',
+      copy:'<p>The final rules turn earlier events into outcomes. For example, carrying treasure through an unlocked gate can lead to <strong>Rich and free</strong>; a stormy escape with treasure can lead to <strong>Rich but hunted</strong>.</p><div class="rule"><div class="formula">Treasure in hand + Gate unlocked → Rich and free<br>Chaos run → Rich but hunted<br>Quiet exit + Gate unlocked → Free, unnoticed<br>Gate picked → Free, empty-handed</div></div><p>Every ending should have a logical route into it. Later, the Results section will tell you if any ending is unreachable.</p>',
+      explanation:'The story now runs from starting conditions through intermediate events to possible endings.'
+    },
+    {
+      kicker:'STEP 06 · PLAY BOARD', title:'Try other choices',
+      copy:'<p>Now test the story instead of just looking at its rules. Turn switches on and off and watch which events activate.</p><ul><li>Try <strong>Cellar key + Lantern + Secret map</strong> to find the treasure room.</li><li>Try <strong>Cellar key + Secret map</strong> without the lantern to find the hidden passage.</li><li>Try the cook’s trust and lantern together to discover the night exit.</li></ul><p>The miniature map is interactive: toggle the switches below it. This simplified teaching example follows the same rule ideas as the full editor; the full sample in the editor has additional events and formulas.</p>',
+      explanation:'Use the switches below to test the sample. Active events highlight as the story is evaluated.'
+    },
+    {
+      kicker:'STEP 07 · RESULTS', title:'Check every path',
+      copy:'<p>A single playthrough shows one combination. <strong>Results</strong> checks all combinations of starting events and isolated choices (up to the tool’s limit) and groups the outcomes.</p><ul><li><strong>Unreachable ending:</strong> no combination activates it.</li><li><strong>Dead end:</strong> a combination reaches no ending.</li><li><strong>Conflict:</strong> competing formulas match without a unique winner.</li><li><strong>Formula never fires:</strong> a rule never wins in any tested combination.</li></ul><p>Use these reports to debug the logic, revise a rule, and test again. Once the structure works, focus on making the actual prose and consequences compelling.</p>',
+      explanation:'The final step is analysis: inspect routes, unreachable endings, conflicts, and dead ends in the full editor.'
+    }
+  ];
+  var current=0;
+  var $=function(id){return document.getElementById(id);};
+  function active(id){return $(id).checked;}
+  function event(label,on,sub,ending){
+    return '<div class="event'+(on?' active':'')+'"'+(ending?' style="border-color:var(--good);background:var(--good-soft)"':'')+'>'+label+(sub?'<small>'+sub+'</small>':'')+'</div>';
+  }
+  function column(title,body){return '<div class="story-col"><h3>'+title+'</h3>'+body+'</div>';}
+  function renderMap(){
+    var key=active('choice-key'), map=active('choice-map'), lamp=active('choice-lamp'), ally=active('choice-ally'), storm=active('choice-storm');
+    var s=current;
+    var show1=true, show2=s>=2, show3=s>=3, show4=s>=4;
+    var cellar=key&&lamp&&!map, treasure=key&&lamp&&map, passage=key&&map&&!lamp;
+    var night=ally&&lamp, cookTip=ally;
+    var hand=treasure&&!storm, chaos=treasure&&storm, quiet=passage&&cookTip;
+    var gate=night&&key, picked=cellar&&key;
+    var richFree=hand&&gate, hunted=chaos, unnoticed=quiet&&gate, empty=picked;
+    var outcome=[];
+    if(show4){if(richFree)outcome.push('Rich and free');if(hunted)outcome.push('Rich but hunted');if(unnoticed)outcome.push('Free, unnoticed');if(empty)outcome.push('Free, empty-handed');}
+    $('outcome').textContent=show4?(outcome.length?outcome.join(' · '):'No ending — a dead end'):s<2?'Build the starting situation':s<3?'Follow the rules to see what happens':'The escape is in progress';
+    var c1=event('Cellar key',key,'starting switch')+event('Secret map',map,'starting switch')+event('Lantern',lamp,'starting switch')+event('Cook’s trust',ally,'starting switch');
+    var c2=show2?event('Cellar explored',cellar,'Key + lantern')+event('Treasure room',treasure,'Key + lantern + map')+event('Hidden passage',passage,'Key + map')+event('Night exit',night,'Cook’s trust + lantern')+event('Cook’s tip',cookTip,'Cook’s trust'):'<p class="note">Story events appear in this stage.</p>';
+    var c3=show3?event('Treasure in hand',hand,'Treasure room; no storm')+event('Chaos run',chaos,'Treasure room + storm')+event('Quiet exit',quiet,'Hidden passage + cook’s tip')+event('Gate unlocked',gate,'Night exit + key')+event('Gate picked',picked,'Cellar explored'):'<p class="note">Escape events appear here.</p>';
+    var c4=show4?event('Rich and free',richFree,'Treasure + unlocked gate',richFree)+event('Rich but hunted',hunted,'Stormy treasure escape',hunted)+event('Free, unnoticed',unnoticed,'Quiet exit + unlocked gate',unnoticed)+event('Free, empty-handed',empty,'Gate picked',empty):'<p class="note">Possible endings appear here.</p>';
+    $('sample-columns').innerHTML=column('01 · Start',c1)+column('02 · Explore',c2)+column('03 · Escape',c3)+column('04 · Endings',c4);
+    $('map-explanation').innerHTML='<strong>How to read this:</strong> '+steps[s].explanation;
+    $('choice-controls').hidden=s<5;
+  }
+  function renderStep(){
+    var x=steps[current];
+    $('lesson-kicker').textContent=x.kicker;
+    $('lesson-title').textContent=x.title;
+    $('lesson-copy').innerHTML=x.copy;
+    $('step-count').textContent='STEP '+String(current+1).padStart(2,'0')+' / '+steps.length;
+    $('progress-fill').style.width=((current+1)/steps.length*100)+'%';
+    Array.prototype.forEach.call(document.querySelectorAll('.step-link'),function(b){
+      var n=Number(b.dataset.step);
+      if(n===current)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');
+      b.classList.toggle('done',n<current);
+    });
+    $('prev-step').disabled=current===0;
+    $('next-step').textContent=current===steps.length-1?'Back to first step ↺':'Next step →';
+    renderMap();
+  }
+  function go(n){current=(n+steps.length)%steps.length;renderStep();}
+  document.querySelectorAll('.step-link').forEach(function(b){b.addEventListener('click',function(){go(Number(b.dataset.step));});});
+  $('prev-step').addEventListener('click',function(){go(current-1);});
+  $('next-step').addEventListener('click',function(){go(current===steps.length-1?0:current+1);});
+  ['choice-key','choice-map','choice-lamp','choice-ally','choice-storm'].forEach(function(id){$(id).addEventListener('change',renderMap);});
+  $('restart').addEventListener('click',function(){
+    ['choice-key','choice-map','choice-lamp'].forEach(function(id){$(id).checked=true;});
+    ['choice-ally','choice-storm'].forEach(function(id){$(id).checked=false;});
+    go(0);window.scrollTo({top:0,behavior:'smooth'});
+  });
+  renderStep();
+})();
+</script>
 </body>
 </html>
