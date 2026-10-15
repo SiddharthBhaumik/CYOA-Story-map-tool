@@ -8,8 +8,6 @@ Instead of manually tracing every branch in a flowchart, Story Node Map evaluate
 
 **[🚀 Open Story Node Map](https://siddharthbhaumik.github.io/CYOA-Story-map-tool/)**
 
-> Replace the link above with your deployed GitHub Pages URL.
-
 ---
 
 ## Table of Contents
