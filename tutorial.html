@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="Learn how to use Story Node Map to plan, test, and analyze choose-your-own-adventure stories.">
+  <title>Story Node Map — Quick Start Tutorial</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1120;
+      --panel: #121c2e;
+      --panel-soft: #17243a;
+      --text: #edf3ff;
+      --muted: #aab8d0;
+      --accent: #8bafff;
+      --accent-strong: #5687ff;
+      --border: #2b3b56;
+      --green: #7ee0bd;
+      --yellow: #f6d58a;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 15% 0%, rgba(86,135,255,.17), transparent 36rem),
+        radial-gradient(ellipse at 100% 15%, rgba(126,224,189,.08), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: var(--accent); }
+    a:hover { color: #c4d6ff; }
+    .wrap { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+    header { padding: 22px 0; border-bottom: 1px solid rgba(170,184,208,.16); }
+    .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand { color: var(--text); font-weight: 800; text-decoration: none; letter-spacing: -.03em; }
+    .nav-links { display: flex; flex-wrap: wrap; gap: 18px; font-size: .92rem; }
+    .nav-links a { text-decoration: none; color: var(--muted); }
+    .hero { padding: 76px 0 56px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 11px; border: 1px solid var(--border); border-radius: 999px;
+      color: var(--green); background: rgba(126,224,189,.06);
+      font-size: .82rem; font-weight: 700;
+    }
+    h1 { font-size: clamp(2.5rem, 7vw, 4.8rem); line-height: 1.04; letter-spacing: -.055em; margin: 20px 0; max-width: 850px; }
+    h1 span { color: var(--accent); }
+    .lead { max-width: 740px; color: var(--muted); font-size: clamp(1.05rem, 2.3vw, 1.25rem); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .btn {
+      display: inline-flex; justify-content: center; align-items: center; gap: 9px;
+      min-height: 48px; padding: 12px 18px; border-radius: 12px;
+      text-decoration: none; font-weight: 800; border: 1px solid transparent;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .primary { background: var(--accent-strong); color: white; }
+    .primary:hover { background: #719aff; color: white; }
+    .secondary { border-color: var(--border); background: rgba(255,255,255,.035); color: var(--text); }
+    .secondary:hover { background: var(--panel-soft); color: white; }
+    .notice { color: var(--muted); font-size: .9rem; margin-top: 14px; }
+    section { padding: 34px 0; }
+    .section-head { margin-bottom: 22px; }
+    h2 { font-size: clamp(1.7rem, 4vw, 2.35rem); line-height: 1.2; letter-spacing: -.035em; margin: 0 0 10px; }
+    h3 { margin: 0 0 8px; font-size: 1.1rem; }
+    p { margin: 0 0 12px; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      padding: 22px; border: 1px solid var(--border); border-radius: 18px;
+      background: linear-gradient(145deg, rgba(23,36,58,.92), rgba(18,28,46,.9));
+    }
+    .number {
+      display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px;
+      background: rgba(139,175,255,.14); color: var(--accent); font-weight: 900; margin-bottom: 15px;
+    }
+    .concepts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .concept {
+      padding: 18px; border: 1px solid var(--border); border-radius: 14px;
+      background: rgba(18,28,46,.72);
+    }
+    .concept strong { display: block; margin-bottom: 5px; color: var(--text); }
+    .concept p { color: var(--muted); margin: 0; }
+    .callout {
+      border: 1px solid rgba(246,213,138,.35); background: rgba(246,213,138,.07);
+      border-radius: 14px; padding: 18px 20px; color: var(--muted);
+    }
+    .callout strong { color: var(--yellow); }
+    .steps { padding-left: 22px; }
+    .steps li { padding: 0 0 10px 6px; }
+    .final-cta {
+      text-align: center; margin: 40px 0 64px; padding: clamp(24px, 5vw, 48px);
+      border-radius: 24px; border: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(86,135,255,.15), rgba(126,224,189,.06));
+    }
+    .final-cta p { color: var(--muted); max-width: 620px; margin: 0 auto 20px; }
+    footer { border-top: 1px solid rgba(170,184,208,.16); padding: 24px 0 36px; color: var(--muted); font-size: .9rem; }
+    footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    code { background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+    @media (max-width: 760px) {
+      .hero { padding-top: 52px; }
+      .grid { grid-template-columns: 1fr; }
+      .concepts { grid-template-columns: 1fr; }
+      .nav { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="#top">✦ Story Node Map</a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#how-it-works">How it works</a>
+        <a href="#quick-start">Quick start</a>
+        <a href="#concepts">Key concepts</a>
+        <a href="https://github.com/SiddharthBhaumik/CYOA-Story-map-tool" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="wrap">
+      <section class="hero">
+        <div class="eyebrow">A quick-start guide for interactive fiction</div>
+        <h1>Plan your story.<br><span>Test every path.</span></h1>
+        <p class="lead">
+          Story Node Map is a browser-based planning tool for choose-your-own-adventure
+          (CYOA) stories. Define events, connect them with logical rules, and explore how
+          different choices lead to different endings—all before you write every branch.
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="story-node-map.html">Open Story Node Map <span aria-hidden="true">→</span></a>
+          <a class="btn secondary" href="#quick-start">Read the tutorial ↓</a>
+        </div>
+        <p class="notice">No installation required. Open the tool in your browser and start experimenting.</p>
+      </section>
+
+      <section id="how-it-works">
+        <div class="section-head">
+          <h2>How the tool thinks</h2>
+          <p class="muted">Instead of drawing every possible branch manually, you describe what can happen and the rules that connect events.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <div class="number">1</div>
+            <h3>Define events</h3>
+            <p class="muted">Create story facts or choices, such as “You took the key” or “The guard trusts you.” Events represent things that may be true in a playthrough.</p>
+          </article>
+          <article class="card">
+            <div class="number">2</div>
+            <h3>Build rule-based nodes</h3>
+            <p class="muted">Use nodes and formulas to specify which combinations of earlier events produce an event in the next section.</p>
+          </article>
+          <article class="card">
+            <div class="number">3</div>
+            <h3>Analyze the outcomes</h3>
+            <p class="muted">Explore switch combinations and inspect endings, routes, conflicts, formulas that never fire, and paths that lead nowhere.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="quick-start">
+        <div class="section-head">
+          <h2>Your first story map</h2>
+          <p class="muted">Start small. You can add more sections and rules after you understand the flow.</p>
+        </div>
+        <div class="card">
+          <ol class="steps">
+            <li><strong>Open the tool.</strong> Use the <em>Open Story Node Map</em> button above. The planner opens in a separate page within the same site.</li>
+            <li><strong>Choose a starting point.</strong> Use <em>Load sample story</em> to inspect an example, or choose <em>Start empty</em> to create your own design.</li>
+            <li><strong>Add sections.</strong> Think of sections as stages in the story. The first section contains starting events; the final section contains ending events.</li>
+            <li><strong>Add events.</strong> Give each event a clear, distinct name. Prefer specific statements such as “Has brass key” over vague labels such as “Key”.</li>
+            <li><strong>Create nodes and formulas.</strong> A node evaluates the events in its section and can produce an event in the next section. A formula describes the conditions needed for that output.</li>
+            <li><strong>Try different choices.</strong> Open the play board and toggle starting events or isolated choices to see how the story state changes.</li>
+            <li><strong>Review the results.</strong> Check which endings are reachable and whether any combinations cause conflicts or dead ends.</li>
+            <li><strong>Save your work.</strong> The tool auto-saves in your browser. Use the save/load area to copy or load the story as JSON text so you can keep a backup or move it elsewhere.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="concepts">
+        <div class="section-head">
+          <h2>Four concepts to know</h2>
+          <p class="muted">These are the building blocks of the planner.</p>
+        </div>
+        <div class="concepts">
+          <div class="concept">
+            <strong>Sections</strong>
+            <p>Stages in the story. Events in one section can influence what becomes true in the next.</p>
+          </div>
+          <div class="concept">
+            <strong>Events</strong>
+            <p>Facts, decisions, or story conditions that can be on or off in a given scenario.</p>
+          </div>
+          <div class="concept">
+            <strong>Nodes and formulas</strong>
+            <p>A node produces an output event when a formula's required events are all on. More specific formulas can take priority over formulas that require fewer events.</p>
+          </div>
+          <div class="concept">
+            <strong>Endings and routes</strong>
+            <p>The results view helps you inspect which endings are reachable and which choices or rules lead there.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="callout">
+          <strong>Tip: test one rule at a time.</strong>
+          <p style="margin:6px 0 0">When a result surprises you, simplify the story temporarily. Check the input events, verify the formula conditions, and then add complexity back in. If equally specific rules compete, inspect the conflict report.</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>Save, share, and continue later</h2>
+        </div>
+        <div class="card">
+          <ul class="steps">
+            <li>Your current work is stored in the browser's local storage, so it is associated with that browser and device.</li>
+            <li>For a portable backup, open the save/load section and copy the story JSON text somewhere safe.</li>
+            <li>To restore a backup, paste the saved JSON into the load area and use the load control.</li>
+            <li>Keep a separate backup before making major changes to a complicated story.</li>
+          </ul>
+          <p class="muted" style="margin-bottom:0">Note: browser-local auto-save is not the same as cloud storage. Clearing browser data or switching devices may remove access to a locally saved story, so export a backup when it matters.</p>
+        </div>
+      </section>
+
+      <div class="final-cta">
+        <h2>Ready to map your story?</h2>
+        <p>Open the planner, load the sample to learn the system, or start from a blank story and build your own branching narrative.</p>
+        <div class="actions" style="justify-content:center">
+          <a class="btn primary" href="story-node-map.html">Launch Story Node Map →</a>
+          <a class="btn secondary" href="https://github.com/SiddharthBhaumik/CYOA-Story-map-tool" target="_blank" rel="noopener noreferrer">View source on GitHub</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>Story Node Map · Quick-start tutorial</span>
+      <span>Built for planning and testing interactive stories.</span>
+    </div>
+  </footer>
+</body>
+</html>
