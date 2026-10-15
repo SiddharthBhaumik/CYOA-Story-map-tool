@@ -2,545 +2,189 @@
 
 **Design branching stories. Test every path. Find every ending.**
 
-Story Node Map is a browser-based tool for building and analyzing event-driven stories. Define events, connect them through logical rules, and explore how different choices affect the outcome.
+Story Node Map is a browser-based tool for planning and analyzing branching narratives. Model story events as switches, connect them with logical rules, play through different starting conditions, and inspect the possible outcomes.
 
-Instead of manually tracing every branch in a flowchart, Story Node Map evaluates every possible combination of choices and reports the endings, routes, conflicts, and dead ends it discovers.
+Instead of tracing every branch manually, use the built-in analyzer to explore combinations and surface reachable endings, dead ends, conflicting rules, and formulas that never fire.
 
-**[🚀 Open Story Node Map](https://siddharthbhaumik.github.io/CYOA-Story-map-tool/)**
-
----
-
-## Table of Contents
-
-- [What Can You Do With It?](#what-can-you-do-with-it)
-- [Getting Started](#getting-started)
-- [Understanding the Building Blocks](#understanding-the-building-blocks)
-- [Tutorial: Build Your First Branching Story](#tutorial-build-your-first-branching-story)
-- [Playing Through Your Story](#playing-through-your-story)
-- [Understanding the Results](#understanding-the-results)
-- [How the Logic Works](#how-the-logic-works)
-- [Saving and Loading Your Work](#saving-and-loading-your-work)
-- [Tips for Designing Better Stories](#tips-for-designing-better-stories)
-- [Limitations](#limitations)
-- [Technology](#technology)
+<p align="center">
+  <a href="https://siddharthbhaumik.github.io/CYOA-Story-map-tool/"><strong>Open Story Node Map →</strong></a>
+  &nbsp; · &nbsp;
+  <a href="https://siddharthbhaumik.github.io/CYOA-Story-map-tool/tutorial.html">Follow the interactive tutorial</a>
+</p>
 
 ---
 
-## What Can You Do With It?
+## Start here
 
-Story Node Map is useful for writers, game designers, interactive fiction creators, and anyone working with systems that have multiple possible outcomes.
+- **[Launch the editor](https://siddharthbhaumik.github.io/CYOA-Story-map-tool/)**
+- **[Open the step-by-step tutorial](https://siddharthbhaumik.github.io/CYOA-Story-map-tool/tutorial.html)**
+- **[Browse the source code](https://github.com/SiddharthBhaumik/CYOA-Story-map-tool)**
 
-- **Design branching narratives:** Represent story events and their dependencies without drawing a huge flowchart by hand.
-- **Test choices:** Toggle starting events and optional choices to see what happens.
-- **Discover endings:** Find which endings are reachable and which are impossible.
-- **Trace story routes:** Understand which rules contributed to an ending.
-- **Detect logical conflicts:** Identify situations where competing rules cannot be resolved.
-- **Find dead ends:** Discover combinations of choices that fail to reach an ending.
-- **Analyze every combination:** Examine the full choice space rather than relying on a few manually tested playthroughs.
-- **Save and reuse frameworks:** Keep your work in the browser or export it as JSON text.
+No installation, account, or build step is required. The app runs in your browser.
 
-The tool can also model event-driven systems beyond fiction, provided they can be expressed using the same sequential, rule-based structure.
+### Your first few minutes
 
----
+1. Open the editor.
+2. Click **Load sample story** to explore *The Midnight Archive*, a small escape adventure.
+3. Look through the sections to see the events and rules that make the story work.
+4. Scroll to the **Play Board** and toggle starting events or isolated choices.
+5. Inspect **Results** to see what happens across all supported combinations.
+6. Click **Start empty** when you are ready to build your own story.
 
-## Getting Started
+Want a guided introduction first? The [interactive tutorial](https://siddharthbhaumik.github.io/CYOA-Story-map-tool/tutorial.html) explains the building blocks and includes its own small, playable version of the sample story.
 
-You do not need to install anything.
+## What you can do
 
-1. Open the [Story Node Map website](YOUR_GITHUB_PAGES_URL_HERE).
-2. Click **Load sample story** to explore a working example.
-3. Examine the **Build** section to see how events and rules are defined.
-4. Scroll to the **Play Board** and click starting events to change the scenario.
-5. Open the **Results** section to explore all possible outcomes.
-6. When you are ready, click **Start empty** to create your own framework.
+- **Plan branching narratives** using ordered sections, events, nodes, and formulas.
+- **Try different choices** in the Play Board and see which events and endings activate.
+- **Trace routes** to understand which rules contributed to an outcome.
+- **Find unreachable endings** and discover combinations that do not reach any ending.
+- **Detect rule conflicts** when competing formulas cannot be resolved by the precedence rules.
+- **Find formulas that never fire** during exhaustive analysis.
+- **Save and share frameworks** by copying and loading their JSON representation.
+- **Use the same logic for other systems** whose behavior can be represented as sequential, event-driven rules.
 
-The application runs directly in your browser.
+## How the model works
 
----
-
-## Understanding the Building Blocks
-
-Before creating a story, it helps to understand five basic concepts.
+A framework is built from five main concepts.
 
 ### 1. Sections
 
-Sections represent successive stages of a story.
+Sections are the ordered stages of a story. The first section contains starting events, the last section contains endings, and the sections in between represent the unfolding story.
 
-For example:
-
-| Section | Purpose | Example |
-|---|---|---|
-| Section 1 | Starting conditions | You have a key |
-| Section 2 | Intermediate events | You enter the cellar |
-| Section 3 | Later events | You retrieve the treasure |
-| Section 4 | Endings | You escape with the treasure |
-
-You can add more sections using **Add time section**.
-
-The tool processes sections in order. A node in one section can use events from that section to produce an event in the next section.
+A node reads events from its own section and can produce an event in the **next** section. This staged structure keeps the logic easier to follow than a large, unrestricted web of branches.
 
 ### 2. Events
 
-An event represents a condition, possession, action, or occurrence in your story.
+Events describe facts, conditions, choices, or outcomes.
 
-Examples:
+Examples include `Cellar key`, `Secret map`, `Treasure in hand`, and `Gate unlocked`.
 
-- Cellar key
-- Secret map
-- Guard alerted
-- Treasure acquired
-- Gate unlocked
-- Escaped successfully
+The app supports three event roles:
 
-Give each event a descriptive name so that the resulting map remains readable.
+- **Starting events:** switches in Section 1 that define the initial scenario.
+- **Derived events:** events produced by formulas in earlier sections.
+- **Isolated choices:** optional events in intermediate sections that can be switched directly rather than produced by a node.
 
-Events fall into three categories:
-
-- **Starting events:** Events in Section 1. These are the initial switches you can turn on or off.
-- **Derived events:** Events produced by nodes in earlier sections.
-- **Isolated choices:** Optional events in intermediate sections that are switched on or off directly rather than produced by a node.
-
-The final section contains your endings.
-
-**Important:** An event does not automatically happen merely because you have created it. Intermediate events normally need a rule that produces them, unless you explicitly mark them as isolated choices.
+Creating an event does not automatically activate it. Intermediate events generally need a formula that produces them, unless they are intentionally marked as isolated choices.
 
 ### 3. Nodes
 
-A node represents a decision point or a logical rule-processing step.
-
-For example, a node called `Cellar Door` might contain these rules:
-
-- If you have the key, you enter the cellar.
-- If you have both the key and the map, you discover the treasure room.
-- If you have both the key and the map, you also discover a hidden passage only when that rule is not superseded by a stronger rule at the same node.
-
-Each node contains one or more formulas.
-
-Use **Add node** to create a node in a section.
+A node groups formulas that evaluate related conditions at a particular stage. For example, a `Cellar door` node might decide whether the character explores the cellar, finds a treasure room, or discovers a hidden passage.
 
 ### 4. Formulas
 
-A formula defines which events are required and which event is produced.
+Each formula has two parts:
 
-Every formula has two parts:
-
-- **Needs:** The events that must all be active.
-- **Gives:** The event that becomes active when the formula wins.
+- **Needs:** events that must all be active.
+- **Gives:** the event produced if that formula wins.
 
 For example:
 
-`Cellar Key + Lantern → Cellar Explored`
+```text
+Cellar key + Lantern → Cellar explored
+Cellar key + Lantern + Secret map → Treasure room
+```
 
-This means that both the key and the lantern must be active for the rule to match.
-
-A formula with multiple required events uses **AND logic**. Having only one of the required events is not sufficient.
-
-To configure a formula:
-
-1. Create a node.
-2. Click the event names under **Needs** to select the required events.
-3. Choose the output event under **Gives**.
-4. Add additional formulas if the node needs more rules.
-
-A complete formula must have at least one required event and an output event.
+All listed requirements must be active (AND logic). When multiple formulas in the same node match, a formula whose requirements are a strict superset of another matching formula's requirements outranks the less specific one. If the matching formulas cannot be ranked to identify a unique winner, the node reports a conflict and produces no output for that evaluation.
 
 ### 5. Endings
 
-Endings are the events in the final section.
+Endings are events in the final section. The sample story includes outcomes such as **Rich and free**, **Rich but hunted**, **Free, unnoticed**, and **Free, empty-handed**.
 
-Examples:
+A playthrough can activate more than one ending. A combination that reaches no ending is reported as a dead end.
 
-- Rich and free
-- Rich but hunted
-- Free, unnoticed
-- Free, empty-handed
+## Playing and analyzing
 
-An ending is reached when its event becomes active through the chain of rules.
+### Play Board
 
-A single combination of choices can reach multiple endings. If no ending becomes active, that combination is a dead end.
+The Play Board displays the framework as a visual sequence of events and rules.
 
----
+- Click starting events and isolated choices to change the current scenario.
+- Follow the highlighted connections to see the active route.
+- Check node and formula states to understand which rules matched, fired, or conflicted.
+- Use **Reset** to return to the default switch configuration.
+- Scroll horizontally to follow larger frameworks.
 
-## Tutorial: Build Your First Branching Story
+The Play Board represents one combination at a time.
 
-Let's model a simple adventure in which a character tries to escape a locked building.
+### Results
 
-### Step 1: Create the sections
+The analyzer evaluates the supported combinations of starting events and isolated choices, then summarizes what it finds.
 
-Start with the default two sections, then click **Add time section** twice to create four sections.
-
-Your structure will look like this:
-
-| Section | Role |
+| Result | What it tells you |
 |---|---|
-| 1 | Starting events |
-| 2 | Exploration |
-| 3 | Escape |
-| 4 | Endings |
+| Ending groups | Which endings are reached by different combinations |
+| Routes | Which rule chains contributed to outcomes |
+| Conflicts | Where a node cannot choose a unique winning formula |
+| Unreachable endings | Which endings no combination can activate |
+| Formulas that never fire | Which formulas never win in the tested choice space |
+| Dead ends | Which combinations reach no ending |
+| Choice patterns | Which switches must be on or off, and which can vary |
 
-### Step 2: Add starting events
+These reports are useful for checking whether your story logic behaves as intended. They do not judge the quality of the writing or whether a narrative is emotionally satisfying.
 
-In Section 1, create these events:
+### Analysis limit
 
-- `Key`
-- `Lantern`
+The exhaustive analyzer supports up to **16 switches**, for a maximum of **65,536 combinations**. If a framework exceeds that limit, the app reports that it cannot complete the exhaustive analysis for that configuration. You can still work on the framework; reduce the number of switches to run the exhaustive check.
 
-These are the starting conditions. On the Play Board, starting events are active by default. You can switch them off when testing scenarios.
+## Save and load
 
-### Step 3: Add intermediate events
+Your work is saved automatically in the current browser using local storage. That makes it convenient to return to the same framework in the same browser, but it is not a backup or cross-device sync.
 
-In Section 2, create:
+To keep a portable copy:
 
-- `Cellar Explored`
-- `Treasure Found`
+1. Open **Save and load** in the editor.
+2. Click **Copy text** to copy the framework's JSON text.
+3. Save it in a file or another safe location.
 
-In Section 3, create:
+To restore a framework, paste its JSON text into the same area and click **Load this text**.
 
-- `Escape Successful`
-- `Escape Failed`
+**Tip:** Export a backup before making major changes. You can save multiple JSON versions to experiment with alternative story structures.
 
-These events will be generated by rules in the preceding sections.
+## Tips for building a clear framework
 
-### Step 4: Add endings
+- **Start small.** Use a few starting switches, a handful of intermediate events, and two or three endings.
+- **Name events as facts.** `Guard alerted` is usually clearer than `Guard`; `Treasure acquired` is clearer than `Treasure`.
+- **Give every intermediate event a role.** Decide whether a node produces it or whether it should be an isolated choice.
+- **Keep formulas causal.** A formula should express a relationship that makes sense in your story.
+- **Test edge cases.** Try all switches off, one switch on, several optional choices on, and combinations where a crucial event is missing.
+- **Use Results as a debugger.** Inspect conflicts, unreachable endings, dead ends, and formulas that never fire, then adjust the rules and test again.
 
-In Section 4, create:
+## Project structure
 
-- `Escaped with Treasure`
-- `Escaped Empty-Handed`
+```text
+.
+├── index.html          # Main Story Node Map application
+├── story-node-map.html # Standalone editor page
+├── tutorial.html       # Guided tutorial with a sample story
+└── README.md           # Project documentation
+```
 
-### Step 5: Create the first node
-
-In Section 1, click **Add node** and name it `Explore Cellar`.
-
-Create two formulas:
-
-| Needs | Gives |
-|---|---|
-| Key | Cellar Explored |
-| Key + Lantern | Treasure Found |
-
-The second formula requires both events. Because it contains all the requirements of the first formula plus an additional one, it takes precedence when both formulas match.
-
-Consequently:
-
-- With the key but no lantern, the character explores the cellar.
-- With both the key and lantern, the character finds the treasure.
-
-### Step 6: Create the escape rules
-
-In Section 2, add a node called `Escape Route`.
-
-Create these formulas:
-
-| Needs | Gives |
-|---|---|
-| Cellar Explored | Escape Successful |
-| Treasure Found | Escape Failed |
-
-This is a deliberately simple example of a rule system, not necessarily a sensible narrative. The important point is that events in Section 2 produce events in Section 3.
-
-### Step 7: Connect the endings
-
-In Section 3, add a node called `Final Outcome`.
-
-Create these formulas:
-
-| Needs | Gives |
-|---|---|
-| Escape Successful | Escaped Empty-Handed |
-| Escape Failed | Escaped with Treasure |
-
-The example intentionally illustrates how rules determine outcomes, rather than prescribing a particular story.
-
-### Step 8: Test the story
-
-Scroll down to the Play Board.
-
-- Turn `Key` on and `Lantern` off.
-- Observe the active rules and resulting events.
-- Turn `Lantern` on.
-- Watch the node outputs and ending change.
-
-The map updates as you change the switches.
-
-**Experiment:** Change the rules to make the narrative more sensible. For example, make finding the treasure lead to a successful escape with the treasure. Then use the Results section to check whether every intended ending is reachable.
-
----
-
-## Playing Through Your Story
-
-The Play Board provides a visual representation of the framework.
-
-### Reading the board
-
-The board displays events, nodes, and endings in columns connected by lines.
-
-- **Starting events and isolated choices:** Click these to turn them on or off.
-- **Active connections:** Highlighted connections show the currently active flow.
-- **Node status:** A node can fire a rule, remain silent, or report a conflict.
-- **Formula status:** The node shows which rules match, which rule fires, and which matching rules are outranked.
-- **Current ending:** The result at the top of the board displays the ending or endings reached in the current playthrough.
-
-### Board controls
-
-- **Reset:** Restore the default switch configuration. Starting events are on and isolated choices are off.
-- **Switch all off:** Turn off every starting event and isolated choice.
-- **Horizontal scrolling:** Follow the connections across the board, particularly for larger stories.
-
-The Play Board represents one combination of switches at a time. For the complete analysis of all combinations, use the Results section.
-
----
-
-## Understanding the Results
-
-The Results section analyzes the entire choice space of your framework.
-
-### 1. Ending groups
-
-Combinations are grouped according to the ending events they reach.
-
-This helps answer questions such as:
-
-- How many combinations lead to each ending?
-- Can a character reach multiple endings simultaneously?
-- Are there combinations that reach no ending?
-
-### 2. Routes
-
-A route describes the set of rules that contributed to an ending.
-
-The tool traces the chain of producing rules backward from the ending to identify the relevant dependencies.
-
-Different combinations of starting choices may produce the same ending through different routes. The analysis groups combinations with the same ending set and route.
-
-### 3. Conflicts
-
-A conflict occurs when multiple formulas in the same node match, but none can be selected as the unique winning rule under the precedence system.
-
-A conflicted node remains silent for that playthrough, and the conflict is reported.
-
-To resolve one:
-
-1. Locate the conflicted node.
-2. Examine the requirements of its matching formulas.
-3. Decide which rule should take precedence, or redesign the rules so that the conflict cannot occur.
-4. Run the analysis again.
-
-### 4. Unreachable endings
-
-An ending is unreachable if no combination of switches causes its event to become active.
-
-Possible reasons include:
-
-- No formula produces the ending.
-- Its producing formula requires an event that cannot occur.
-- Earlier rules prevent the necessary chain from completing.
-
-Check the dependency chain from the ending backward through the preceding sections.
-
-### 5. Formulas that never fire
-
-The tool reports formulas that never win during the exhaustive analysis.
-
-A formula might never fire because its requirements cannot be satisfied, or because another formula consistently outranks it.
-
-This can reveal redundant rules, unreachable conditions, or mistakes in the framework.
-
-### 6. Dead ends
-
-A dead end is a combination of choices that reaches no ending.
-
-The analysis groups dead-end combinations and shows how far their rules progressed.
-
-Dead ends are not always undesirable. In a game, they might represent failure states or intentional consequences. The important thing is to know that they exist.
-
-### 7. Choice patterns
-
-The results also compress combinations into patterns that indicate which switches must be on, which must be off, and which can vary.
-
-This helps summarize large numbers of combinations without listing every combination separately.
-
-Selecting a pattern or route lets you inspect the corresponding configuration on the Play Board.
-
----
-
-## How the Logic Works
-
-The application evaluates the story using a deterministic rule system.
-
-### Rule matching
-
-A formula matches when all its required events are active.
-
-For example:
-
-`Key + Lantern → Treasure Found`
-
-The formula matches only if both `Key` and `Lantern` are on.
-
-### Rule precedence
-
-Within a node, a formula requiring a strict superset of another formula's requirements outranks the smaller formula when both match.
-
-For example:
-
-- `Key → Cellar Explored`
-- `Key + Lantern → Treasure Found`
-
-When both the key and lantern are active, the second formula outranks the first because it requires all the same events plus an additional event.
-
-If two matching formulas cannot be ranked in this way and compete at the top, the node reports a conflict and produces no output for that evaluation.
-
-### Sequential evaluation
-
-Nodes are processed in section order. Each node reads events from its own section and can produce an event in the next section.
-
-This makes the framework a staged event system rather than an unrestricted graph in which rules can repeatedly feed back into earlier stages.
-
-### Exhaustive analysis
-
-Every starting event and every isolated choice is a binary switch.
-
-With `n` switches, there are:
-
-`2ⁿ possible combinations`
-
-For example:
-
-| Number of switches | Combinations |
-|---:|---:|
-| 4 | 16 |
-| 8 | 256 |
-| 10 | 1,024 |
-| 12 | 4,096 |
-| 16 | 65,536 |
-
-The application evaluates every combination within its supported limit, rather than estimating which outcomes are likely.
-
----
-
-## Saving and Loading Your Work
-
-Story Node Map saves your framework in the browser automatically as you edit it.
-
-### Automatic saving
-
-Your framework is stored in browser local storage. You can normally return to the same site in the same browser and continue working.
-
-However, browser storage is not a permanent backup. Clearing site data, switching browsers, or using a different device may mean your work is unavailable.
-
-### Export a backup
-
-1. Scroll to **Save and load**.
-2. Find the text area containing your framework.
-3. Click **Copy text** to copy the framework.
-4. Save the copied text in a file with a `.json` extension, or keep it somewhere safe.
-
-### Import a framework
-
-1. Open the **Save and load** section.
-2. Paste your saved framework text into the text area.
-3. Click **Load this text**.
-4. Check the Build section and Play Board to confirm the framework loaded as expected.
-
-The exported text is JSON, a structured text format suitable for saving, sharing, and versioning.
-
-**Recommendation:** Export a backup before making major structural changes. You can also keep different versions of the same story to experiment with alternative rules.
-
----
-
-## Tips for Designing Better Stories
-
-### Start with a small framework
-
-Begin with two or three starting events, a few intermediate events, and two endings. Add complexity only after the rules behave as expected.
-
-### Give events clear names
-
-Prefer `Guard Alerted` over `Guard`, or `Treasure Acquired` over `Treasure`. A name should describe the condition that is true, not merely the object involved.
-
-### Make every intermediate event intentional
-
-For each intermediate event, decide whether it is produced by a node or represents an independent choice.
-
-If it is produced by a node, ensure that at least one complete formula gives it.
-
-If it is an independent choice, mark it as an isolated choice.
-
-### Keep formulas readable
-
-Each formula should express a clear causal relationship.
-
-For example:
-
-`Has Disguise + Guard Distracted → Passes Checkpoint`
-
-This is easier to reason about than a formula with many unrelated requirements.
-
-### Test edge cases
-
-Try scenarios where:
-
-- All starting events are off.
-- Only one starting event is on.
-- Several optional choices are on simultaneously.
-- A crucial event is missing.
-- Two competing formulas match at once.
-
-These scenarios often expose problems that are easy to overlook in a normal playthrough.
-
-### Treat results as a debugging tool
-
-A useful workflow is:
-
-1. Build a minimal framework.
-2. Run the analysis.
-3. Inspect unreachable endings and dead ends.
-4. Resolve unintended conflicts.
-5. Refine the story.
-6. Export a backup before making major changes.
-
----
-
-## Limitations
-
-- **Maximum of 16 switches:** The exhaustive analyzer supports up to 16 starting and isolated switches, corresponding to 65,536 combinations. Larger frameworks can exceed the analysis limit.
-- **Sequential rules:** Each node reads events from one section and produces an event in the next. The tool is designed for staged dependencies.
-- **Deterministic behavior:** The same switch configuration and rules produce the same results. The application does not simulate randomness or probabilities.
-- **Logical rather than narrative validation:** The tool checks event dependencies and outcomes. It cannot determine whether a story is emotionally satisfying, well written, or narratively consistent in a broader literary sense.
-- **Browser-based persistence:** Automatic saving uses local storage. Keep external backups for important work.
-- **No account-based synchronization:** Browser storage does not automatically synchronize your framework across devices.
-
----
+The GitHub Pages site is published from this repository. The root page launches the editor, and `tutorial.html` provides the guided learning experience.
 
 ## Technology
 
-Story Node Map is a client-side web application built with:
+- **HTML** — page structure
+- **CSS** — layout, responsive styling, and light/dark theme support
+- **Vanilla JavaScript** — framework editor, rule evaluation, Play Board, and exhaustive analysis
+- **Browser local storage** — automatic saving in the current browser
+- **JSON** — portable framework export and import
+- **GitHub Pages** — hosting
 
-- **HTML** for structure.
-- **CSS** for layout, styling, responsive design, and theme support.
-- **Vanilla JavaScript** for the editor, rule engine, visual board, and exhaustive analysis.
-- **Browser local storage** for automatic persistence.
-- **JSON** for exporting and importing frameworks.
-- **GitHub Pages** for hosting the deployed application.
+The application does not require a server-side runtime to use the hosted editor.
 
-No installation or application account is required to use the hosted tool.
+## Contributing and feedback
 
----
+Found a bug or have an idea for improving the editor, tutorial, or analysis? Open an issue or submit a pull request in this repository.
 
-## Contributing and Feedback
+Helpful contributions include:
 
-Found a bug, have an idea for a feature, or want to improve the documentation?
-
-You can open an issue or submit a pull request in the repository where the project is hosted.
-
-Useful contributions include:
-
-- Bug reports with a reproducible example.
-- Suggestions for improving the editing workflow.
-- Improvements to the analysis or visualization.
-- Documentation fixes and clearer examples.
+- Bug reports with steps to reproduce the issue
+- Clearer examples and documentation
+- Improvements to the editing or play-testing workflow
+- Improvements to the rule engine, analysis, or visualization
 
 ---
 
-**Start with a few events, connect them with rules, and see where every possible choice leads.**
+**Build the rules, explore the branches, and see where every possible choice leads.**
