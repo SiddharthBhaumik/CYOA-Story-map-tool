@@ -6,7 +6,7 @@ Story Node Map is a browser-based tool for building and analyzing event-driven s
 
 Instead of manually tracing every branch in a flowchart, Story Node Map evaluates every possible combination of choices and reports the endings, routes, conflicts, and dead ends it discovers.
 
-**[Open Story Node Map](YOUR_GITHUB_PAGES_URL_HERE)**
+**[🚀 Open Story Node Map](https://siddharthbhaumik.github.io/CYOA-Story-map-tool/)**
 
 > Replace the link above with your deployed GitHub Pages URL.
 
